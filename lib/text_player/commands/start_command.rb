@@ -11,19 +11,22 @@ module TextPlayer
         nil
       end
 
-      def execute(process)
-        raw_output = process.read_until(PROMPT_REGEX)
+      def execute(game)
+        raw_output = game.read_until(TextPlayer::PROMPT_REGEX)
 
         # Handle "Press any key" prompts - be more specific
+        max_iterations = 5
         while /(Press|Hit|More)\s+/i.match?(raw_output)
-          process.write(" ")
-          raw_output += process.read_until(PROMPT_REGEX)
+          game.write(" ")
+          raw_output += game.read_until(TextPlayer::PROMPT_REGEX)
+          max_iterations -= 1
+          break if max_iterations.zero?
         end
 
         # Skip introduction if offered
         if raw_output.include?("introduction")
-          process.write("no")
-          raw_output += process.read_until(PROMPT_REGEX)
+          game.write("no")
+          raw_output += game.read_until(TextPlayer::PROMPT_REGEX)
         end
 
         CommandResult.new(

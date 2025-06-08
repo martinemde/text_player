@@ -45,8 +45,8 @@ module TextPlayer
   class Error < StandardError; end
 
   # Common constants used across the library
-  SCORE_REGEX = /[0-9]+ \(total [points ]*[out ]*of [a mxiuof]*[a posible]*[0-9]+/i
-  PROMPT_REGEX = /^>\s*$/
   AUTO_SAVE_SLOT = "autosave"
   FILENAME_PROMPT_REGEX = /Please enter a filename \[.*\]: /
+  PROMPT_REGEX = /^>\s*$/
+  SCORE_REGEX = /([0-9]+) ?(?:\(total [points ]*[out ]*of [a mxiuof]*[a posible]*([0-9]+)\))?/i
 end

@@ -11,6 +11,8 @@ module TextPlayer
       end
 
       def execute(game)
+        # Note: we could check if the file exists and delete it here, but
+        # instead we will let dfrotz handle it in case the save fails.
         game.write(input)
         game.read_until(TextPlayer::FILENAME_PROMPT_REGEX)
         game.write(save.filename)

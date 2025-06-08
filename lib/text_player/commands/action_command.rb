@@ -7,17 +7,8 @@ module TextPlayer
     # Command for generic game actions (look, go north, take sword, etc.)
     ActionCommand = Data.define(:input) do
       def execute(game)
-        unless game.running?
-          return CommandResult.new(
-            input: input,
-            operation: :error,
-            success: false,
-            message: "Game not running"
-          )
-        end
-
         game.write(input)
-        raw_output = game.read_all
+        raw_output = game.read_until(TextPlayer::PROMPT_REGEX)
 
         CommandResult.new(
           input: input,

@@ -10,27 +10,16 @@ module TextPlayer
         "quit"
       end
 
-      def execute(process)
-        unless process.running?
-          return CommandResult.new(
-            input:,
-            operation: :error,
-            success: false,
-            message: "Game not running"
-          )
-        end
-
+      def execute(game)
         begin
-          process.write(input)
-          # Give the game a moment to process quit and ask for confirmation
+          game.write(input)
           sleep(0.2)
-          # Send 'y' to confirm quit
-          process.write("y")
+          game.write("y")
         rescue Errno::EPIPE
           # Expected when process exits - ignore
+        ensure
+          game.terminate
         end
-
-        process.terminate
 
         CommandResult.new(
           input: input,

@@ -12,7 +12,7 @@ module TextPlayer
       when :json then JsonFormatter.new
       when :shell then ShellFormatter.new
       else
-        raise ArgumentError, "Unknown formatter type: #{type}. Use :data, :json, or :shell"
+        TextFormatter.new
       end
     end
 
@@ -22,38 +22,14 @@ module TextPlayer
         /^([A-Z][^.\n]*?)$/m, # First line starting with capital
         /(You are in|You're in|This is) (the )?(.*?)(\.|$)/i
       ].freeze
-      SCORE_COMMAND_REGEX = /[0-9]+ \(total [points ]*[out ]*of [a mxiuof]*[a posible]*[0-9]+/i
 
       SCORE_PATTERN = /Score:\s*(\d+)/i
       MOVES_PATTERN = /Moves:\s*(\d+)/i
       PROMPT_PATTERN = /^>\s*$/
 
-      # Format regular game output
-      def format(raw_output)
-        raise NotImplementedError, "Subclasses must implement format method"
-      end
-
       # Format CommandResult objects
-      def format_command_result(command_result)
-        if command_result.game_command?
-          format(command_result.raw_output)
-        else
-          format_feedback(
-            operation: command_result.operation,
-            success: command_result.success,
-            message: command_result.message,
-            **command_result.details
-          )
-        end
-      end
-
-      def format_score(raw_output)
-        raise NotImplementedError, "Subclasses must implement format_score method"
-      end
-
-      # Format feedback for operations like save/restore
-      def format_feedback(operation:, success:, message:, **details)
-        raise NotImplementedError, "Subclasses must implement format_feedback method"
+      def format(command_result)
+        raise NotImplementedError, "Subclasses must implement format method"
       end
 
       protected
@@ -102,9 +78,16 @@ module TextPlayer
       end
     end
 
+    class TextFormatter < BaseFormatter
+      def format(command_result)
+        command_result.raw_output
+      end
+    end
+
     # Data formatter - returns structured hash
     class DataFormatter < BaseFormatter
-      def format(raw_output)
+      def format(command_result)
+        raw_output = command_result.raw_output
         {
           type: "game_output",
           location: extract_location(raw_output),
@@ -112,31 +95,6 @@ module TextPlayer
           moves: extract_moves(raw_output),
           output: clean_game_text(raw_output),
           has_prompt: has_prompt?(raw_output)
-        }
-      end
-
-      def format_feedback(operation:, success:, message:, **details)
-        {
-          type: "feedback",
-          operation: operation.to_s,
-          success: success,
-          message: message,
-          **details
-        }
-      end
-
-      def format_score(raw_output)
-        match = raw_output.match(SCORE_COMMAND_REGEX)
-        return nil unless match
-
-        parts = match[0].split
-        score = parts.first.to_i
-        outof = parts.last.to_i
-        {
-          type: "score",
-          score: score,
-          outof: outof,
-          message: raw_output
         }
       end
 
@@ -154,22 +112,27 @@ module TextPlayer
 
     # JSON formatter - returns JSON string of structured data
     class JsonFormatter < DataFormatter
-      def format(raw_output)
-        JSON.generate(super)
-      end
-
-      def format_feedback(operation:, success:, message:, **details)
-        JSON.generate(super)
+      def format(command_result)
+        JSON.generate(super(command_result))
       end
     end
 
     # Shell formatter - returns full output ready for interactive shell
     class ShellFormatter < BaseFormatter
-      def format(raw_output)
-        # Ensure output ends with prompt for interaction
-        output = raw_output.dup
-        output += "\n>" unless has_prompt?(output)
-        output
+      def format(command_result)
+        case command_result.operation
+        when :score
+          command_result.message
+        when :save, :restore, :quit
+          format_feedback(
+            operation: command_result.operation,
+            success: command_result.success,
+            message: command_result.message,
+            **command_result.details
+          )
+        else
+          command_result.raw_output
+        end
       end
 
       def format_feedback(operation:, success:, message:, **details)

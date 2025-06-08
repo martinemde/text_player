@@ -7,10 +7,9 @@ RSpec.describe TextPlayer::Commands::ActionCommand do
 
   let(:mock_process) { instance_double(TextPlayer::Dfrotz) }
 
-  it "executes game action when process is running" do
-    allow(mock_process).to receive(:running?).and_return(true)
+  it "executes game action" do
     allow(mock_process).to receive(:write).with("look")
-    allow(mock_process).to receive(:read_all).and_return("You see nothing special.\n>")
+    allow(mock_process).to receive(:read_until).with(TextPlayer::PROMPT_REGEX).and_return("You see nothing special.\n>")
 
     result = command.execute(mock_process)
 

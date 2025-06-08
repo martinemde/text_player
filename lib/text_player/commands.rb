@@ -5,6 +5,7 @@ require_relative "commands/quit_command"
 require_relative "commands/restore_command"
 require_relative "commands/save_command"
 require_relative "commands/score_command"
+require_relative "commands/start_command"
 
 module TextPlayer
   module Commands
