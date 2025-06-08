@@ -38,6 +38,7 @@ require_relative "text_player/game_utils"
 require_relative "text_player/dfrotz"
 require_relative "text_player/formatters"
 require_relative "text_player/commands"
+require_relative "text_player/save"
 require_relative "text_player/session"
 
 module TextPlayer

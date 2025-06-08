@@ -19,21 +19,30 @@ RSpec.describe TextPlayer::Commands do
     it "creates SaveCommand for save input" do
       command = described_class.create("save", game_filename: "zork1.z5")
       expect(command).to be_a(TextPlayer::Commands::SaveCommand)
-      expect(command.input).to eq("save")
-      expect(command.game_filename).to eq("zork1.z5")
+      expect(command.save.filename).to eq("saves/zork1_autosave.qzl")
+      expect(command.save.slot).to eq(TextPlayer::AUTO_SAVE_SLOT)
+    end
+
+    it "creates SaveCommand for save input with argument" do
+      command = described_class.create("save checkpoint", game_filename: "zork1.z5")
+      expect(command).to be_a(TextPlayer::Commands::SaveCommand)
+      expect(command.save.filename).to eq("saves/zork1_checkpoint.qzl")
+      expect(command.save.slot).to eq("checkpoint")
     end
 
     it "creates RestoreCommand for restore input" do
       command = described_class.create("restore", game_filename: "zork1.z5")
       expect(command).to be_a(TextPlayer::Commands::RestoreCommand)
       expect(command.input).to eq("restore")
-      expect(command.game_filename).to eq("zork1.z5")
+      expect(command.save.filename).to eq("saves/zork1_autosave.qzl")
+      expect(command.save.slot).to eq(TextPlayer::AUTO_SAVE_SLOT)
     end
 
     it "creates RestoreCommand with slot for restore with argument" do
       command = described_class.create("restore checkpoint", game_filename: "zork1.z5")
       expect(command).to be_a(TextPlayer::Commands::RestoreCommand)
-      expect(command.slot).to eq("checkpoint")
+      expect(command.save.filename).to eq("saves/zork1_checkpoint.qzl")
+      expect(command.save.slot).to eq("checkpoint")
     end
 
     it "creates QuitCommand for quit input" do

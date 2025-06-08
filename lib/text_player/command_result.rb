@@ -22,5 +22,19 @@ module TextPlayer
     def failure?
       !success
     end
+
+    private
+
+    def respond_to_missing?(method, include_private = false)
+      details.key?(method) || super
+    end
+
+    def method_missing(method, *args, &block)
+      if details.key?(method)
+        details[method]
+      else
+        super
+      end
+    end
   end
 end

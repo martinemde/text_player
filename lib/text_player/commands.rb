@@ -13,13 +13,13 @@ module TextPlayer
       when "score"
         ScoreCommand.new
       when /^save\s*(\S+)/ # no end anchor to catch all save commands that have args
-        SaveCommand.new(input:, slot: ::Regexp.last_match(1), game_filename:)
+        SaveCommand.new(save: Save.new(game_filename:, slot: Regexp.last_match(1)))
       when "save"
-        SaveCommand.new(input:, slot: TextPlayer::AUTO_SAVE_SLOT, game_filename:)
+        SaveCommand.new(save: Save.new(game_filename:))
       when /^restore\s*(\S+)/ # no end anchor to catch all restore commands that have args
-        RestoreCommand.new(input:, slot: ::Regexp.last_match(1), game_filename:)
+        RestoreCommand.new(save: Save.new(game_filename:, slot: Regexp.last_match(1)))
       when "restore"
-        RestoreCommand.new(input:, slot: TextPlayer::AUTO_SAVE_SLOT, game_filename:)
+        RestoreCommand.new(save: Save.new(game_filename:))
       when "quit"
         QuitCommand.new
       else

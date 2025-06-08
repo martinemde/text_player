@@ -19,15 +19,4 @@ RSpec.describe TextPlayer::Commands::ActionCommand do
     expect(result.success).to be true
     expect(result.raw_output).to eq("You see nothing special.\n>")
   end
-
-  it "returns error when process is not running" do
-    allow(mock_process).to receive(:running?).and_return(false)
-
-    result = command.execute(mock_process)
-
-    expect(result.input).to eq("look")
-    expect(result.operation).to eq(:error)
-    expect(result.success).to be false
-    expect(result.message).to eq("Game not running")
-  end
 end

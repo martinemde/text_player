@@ -6,6 +6,16 @@ require_relative "command_result"
 module TextPlayer
   # UI Formatters - Abstract output handling for different interfaces
   module Formatters
+    def self.create(type)
+      case type
+      when :data then DataFormatter.new
+      when :json then JsonFormatter.new
+      when :shell then ShellFormatter.new
+      else
+        raise ArgumentError, "Unknown formatter type: #{type}. Use :data, :json, or :shell"
+      end
+    end
+
     # Base formatter with common parsing logic and feedback handling
     class BaseFormatter
       LOCATION_PATTERNS = [

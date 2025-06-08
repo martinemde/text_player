@@ -5,28 +5,34 @@ require_relative "../command_result"
 module TextPlayer
   module Commands
     # Command for restoring game state
-    RestoreCommand = Data.define(:input, :slot, :game_filename) do
-      def execute(process)
-        unless process.running?
+    RestoreCommand = Data.define(:save) do
+      def input
+        "restore"
+      end
+
+      def execute(game)
+        unless save.exist?
           return CommandResult.new(
             input: input,
-            operation: :error,
+            operation: :restore,
             success: false,
-            message: "Game not running"
+            message: "Restore failed - file not found",
+            slot: save.slot,
+            filename: save.filename
           )
         end
 
-        process.write("restore")
-        process.read_until(TextPlayer::FILENAME_PROMPT_REGEX)
-        process.write(save_filename)
+        game.write(input)
+        game.read_until(TextPlayer::FILENAME_PROMPT_REGEX)
+        game.write(save.filename)
 
-        result = process.read_until(/Ok\.|Failed\.|not found|>/i)
+        result = game.read_until(/Ok\.|Failed\.|not found|>/i)
 
         success = result.include?("Ok.")
         message = if success
           "Game restored successfully"
         elsif result.include?("Failed") || result.include?("not found")
-          "Restore failed - file not found or corrupted"
+          "Restore failed - file not found by dfrotz process even though it existed before running this command"
         else
           "Restore operation completed"
         end
@@ -37,15 +43,9 @@ module TextPlayer
           operation: :restore,
           success: success,
           message: message,
-          slot: slot,
-          filename: save_filename
+          slot: save.slot,
+          filename: save.filename
         )
-      end
-
-      private
-
-      def save_filename
-        "saves/#{game_filename.delete_suffix(".z5")}_#{slot}.qzl"
       end
     end
   end

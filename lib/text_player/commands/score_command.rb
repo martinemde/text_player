@@ -11,15 +11,6 @@ module TextPlayer
       end
 
       def execute(process)
-        unless process.running?
-          return CommandResult.new(
-            input:,
-            operation: :error,
-            success: false,
-            message: "Game not running"
-          )
-        end
-
         process.write(input)
         raw_output = process.read_until(TextPlayer::PROMPT_REGEX)
 
