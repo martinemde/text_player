@@ -93,9 +93,9 @@ RSpec.describe TextPlayer::Dfrotz do
       end
 
       it "raises error when dfrotz path is not found" do
-        expect {
+        expect do
           described_class.new(game_path, dfrotz: "/non/existent/dfrotz")
-        }.to raise_error(RuntimeError, /dfrotz not found/)
+        end.to raise_error(RuntimeError, /dfrotz not found/)
       end
 
       it "raises error when dfrotz path is not executable" do
@@ -106,9 +106,9 @@ RSpec.describe TextPlayer::Dfrotz do
           file.close
           File.chmod(0o644, file.path) # Make it non-executable
 
-          expect {
+          expect do
             described_class.new(game_path, dfrotz: file.path)
-          }.to raise_error(RuntimeError, /dfrotz not found/)
+          end.to raise_error(RuntimeError, /dfrotz not found/)
         end
       end
     end

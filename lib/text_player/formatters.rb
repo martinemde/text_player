@@ -85,7 +85,7 @@ module TextPlayer
       private
 
       def valid_location?(location)
-        location.length > 0 &&
+        location.length.positive? &&
           !location.include?("I don't understand") &&
           !location.include?("I can't") &&
           !location.include?("You can't")
@@ -120,7 +120,8 @@ module TextPlayer
         return nil unless match
 
         parts = match[0].split
-        score, outof = [parts.first.to_i, parts.last.to_i]
+        score = parts.first.to_i
+        outof = parts.last.to_i
         {
           type: "score",
           score: score,
@@ -172,7 +173,7 @@ module TextPlayer
         # Add details if present
         if details.any?
           detail_lines = details.map { |k, v| "  #{k}: #{v}" }
-          feedback += "\n" + detail_lines.join("\n")
+          feedback += "\n#{detail_lines.join("\n")}"
         end
 
         feedback += "\n>"

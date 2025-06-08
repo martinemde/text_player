@@ -59,7 +59,7 @@ start_output = game.start
 puts start_output
 
 # Execute commands
-response = game.execute_command('go north')
+response = game.call('go north')
 puts response
 
 # Get current score
@@ -143,7 +143,7 @@ loop do
   command = game.formatter.prompt_for_command
   break if command.nil? || command.downcase == 'quit'
 
-  response = game.execute_command(command)
+  response = game.call(command)
   puts response
 end
 

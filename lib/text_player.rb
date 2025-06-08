@@ -24,7 +24,7 @@
 #   puts result[:location]  # "West of House"
 #   puts result[:score]     # 0
 #
-#   save_result = game.execute_command('save')
+#   save_result = game.call('save')
 #   puts save_result[:success]  # true/false
 #   puts save_result[:slot]     # "autosave"
 #
@@ -37,8 +37,15 @@ require_relative "text_player/version"
 require_relative "text_player/game_utils"
 require_relative "text_player/dfrotz"
 require_relative "text_player/formatters"
+require_relative "text_player/commands"
 require_relative "text_player/session"
 
 module TextPlayer
   class Error < StandardError; end
+
+  # Common constants used across the library
+  SCORE_REGEX = /[0-9]+ \(total [points ]*[out ]*of [a mxiuof]*[a posible]*[0-9]+/i
+  PROMPT_REGEX = /^>\s*$/
+  AUTO_SAVE_SLOT = "autosave"
+  FILENAME_PROMPT_REGEX = /Please enter a filename \[.*\]: /
 end

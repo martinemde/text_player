@@ -8,11 +8,6 @@ require_relative "command_result"
 module TextPlayer
   # Mid-level: Manages game session lifecycle and output formatting
   class Session
-    SCORE_REGEX = /[0-9]+ \(total [points ]*[out ]*of [a mxiuof]*[a posible]*[0-9]+/i
-    PROMPT_REGEX = /^>\s*$/
-    AUTO_SAVE_SLOT = "autosave"
-    FILENAME_PROMPT_REGEX = /Please enter a filename \[.*\]: /
-
     attr_reader :formatter
 
     def initialize(game_filename, formatter: :shell, dfrotz: nil)
@@ -60,114 +55,31 @@ module TextPlayer
     # when the game is quit.
     #
     # Quit is also intercepted to make sure we shut down the game cleanly.
-    def execute_command(cmd)
-      command_result = create_command_result(cmd)
-      @formatter.format_command_result(command_result)
+    def call(cmd)
+      command = Commands.create(cmd, game_filename: @game_filename)
+      execute_command(command)
     end
 
-    def get_score
-      return nil unless @started
-
-      @process.write("score")
-      output = @process.read_until(PROMPT_REGEX)
-
-      @formatter.format_score(output)
+    def score
+      command = Commands::ScoreCommand.new(input:)
+      execute_command(command)
     end
 
     def save(slot = nil)
-      return create_error_result("save", "Game not started") unless @started
-
-      slot ||= AUTO_SAVE_SLOT
-
-      @process.write("save")
-      @process.read_until(FILENAME_PROMPT_REGEX)
-      @process.write(save_filename(slot))
-
-      result = @process.read_until(/Overwrite existing file\? |Ok\.|Failed\.|>/i)
-
-      if result.include?("Overwrite existing file?")
-        @process.write("y")
-        result += @process.read_until(/Ok\.|Failed\.|>/i)
-      end
-
-      success = result.include?("Ok.")
-      message = if success
-        "Game saved successfully"
-      elsif result.include?("Failed.")
-        "Save operation failed"
-      else
-        "Save completed"
-      end
-
-      CommandResult.new(
-        input: "save",
-        raw_output: result,
-        operation: :save,
-        success: success,
-        message: message,
-        slot: slot,
-        filename: save_filename(slot)
-      )
+      command = Commands::SaveCommand.new(input:, slot: slot || TextPlayer::AUTO_SAVE_SLOT,
+        game_filename: game_filename)
+      execute_command(command)
     end
 
     def restore(slot = nil)
-      return create_error_result("restore", "Game not started") unless @started
-
-      slot ||= AUTO_SAVE_SLOT
-
-      @process.write("restore")
-      @process.read_until(FILENAME_PROMPT_REGEX)
-      @process.write(save_filename(slot))
-
-      result = @process.read_until(/Ok\.|Failed\.|not found|>/i)
-
-      success = result.include?("Ok.")
-      message = if success
-        "Game restored successfully"
-      elsif result.include?("Failed") || result.include?("not found")
-        "Restore failed - file not found or corrupted"
-      else
-        "Restore operation completed"
-      end
-
-      CommandResult.new(
-        input: "restore",
-        raw_output: result,
-        operation: :restore,
-        success: success,
-        message: message,
-        slot: slot,
-        filename: save_filename(slot)
-      )
+      command = Commands::RestoreCommand.new(input:, slot: slot || TextPlayer::AUTO_SAVE_SLOT,
+        game_filename: game_filename)
+      execute_command(command)
     end
 
     def quit
-      return create_error_result("quit", "Game not started") unless @started
-
-      save
-
-      score = get_score
-      puts @formatter.format_score(score)
-
-      begin
-        @process.write("quit")
-        # Give the game a moment to process quit and ask for confirmation
-        sleep(0.2)
-        # Send 'y' to confirm quit
-        @process.write("y")
-      rescue Errno::EPIPE
-        # Expected when process exits - ignore
-      end
-
-      @process.terminate
-      @started = false
-
-      CommandResult.new(
-        input: "quit",
-        operation: :quit,
-        success: true,
-        message: "Game quit successfully"
-      )
+      command = Commands::QuitCommand.new
+      execute_command(command)
     end
 
     def running?
@@ -175,6 +87,11 @@ module TextPlayer
     end
 
     private
+
+    def execute_command(command)
+      command_result = command.execute(@process)
+      @formatter.format_command_result(command_result)
+    end
 
     def create_command_result(cmd)
       return create_error_result(cmd, "Game not started") unless @started

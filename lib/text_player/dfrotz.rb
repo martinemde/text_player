@@ -26,6 +26,7 @@ module TextPlayer
       @game_path = game_path
       @dfrotz = dfrotz || self.class.path
       raise "dfrotz not found: #{@dfrotz.inspect}" unless self.class.executable?(@dfrotz)
+
       @timeout = timeout
       @command_delay = command_delay
       @stdin = @stdout = @wait_thr = nil
@@ -83,6 +84,7 @@ module TextPlayer
 
     def terminate
       return true unless running?
+
       close
       @wait_thr.kill
     rescue
