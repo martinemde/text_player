@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+set -vx
+
+if ! which dfrotz > /dev/null 2>&1; then
+  brew install frotz
+fi
+
+bundle install
+
+# Do any other automated setup that you need to do here
