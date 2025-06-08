@@ -32,9 +32,10 @@
 #   shell_game = Session.new('zork1.z5', formatter: :shell)
 #   output = shell_game.start  # Full text with prompt
 #   command = shell_game.formatter.prompt_for_command
+require "pathname"
 
 require_relative "text_player/version"
-require_relative "text_player/game_utils"
+require_relative "text_player/gamefile"
 require_relative "text_player/dfrotz"
 require_relative "text_player/formatters"
 require_relative "text_player/commands"
@@ -49,4 +50,5 @@ module TextPlayer
   FILENAME_PROMPT_REGEX = /Please enter a filename \[.*\]: /
   PROMPT_REGEX = /^>\s*$/
   SCORE_REGEX = /([0-9]+) ?(?:\(total [points ]*[out ]*of [a mxiuof]*[a posible]*([0-9]+)\))?/i
+  GAME_DIR = Pathname.new(__dir__).join("../games")
 end

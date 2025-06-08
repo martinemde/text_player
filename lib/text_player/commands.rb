@@ -9,18 +9,18 @@ require_relative "commands/start_command"
 
 module TextPlayer
   module Commands
-    def self.create(input, game_filename: nil)
+    def self.create(input, game_name: nil)
       case input.strip.downcase
       when "score"
         ScoreCommand.new
       when /^save\s*(\S+)/ # no end anchor to catch all save commands that have args
-        SaveCommand.new(save: Save.new(game_filename:, slot: Regexp.last_match(1)))
+        SaveCommand.new(save: Save.new(game_name:, slot: Regexp.last_match(1)))
       when "save"
-        SaveCommand.new(save: Save.new(game_filename:))
+        SaveCommand.new(save: Save.new(game_name:))
       when /^restore\s*(\S+)/ # no end anchor to catch all restore commands that have args
-        RestoreCommand.new(save: Save.new(game_filename:, slot: Regexp.last_match(1)))
+        RestoreCommand.new(save: Save.new(game_name:, slot: Regexp.last_match(1)))
       when "restore"
-        RestoreCommand.new(save: Save.new(game_filename:))
+        RestoreCommand.new(save: Save.new(game_name:))
       when "quit"
         QuitCommand.new
       else

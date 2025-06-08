@@ -2,15 +2,11 @@
 
 module TextPlayer
   # Utilities for saving and restoring game state
-  Save = Data.define(:game_filename, :slot) do
-    def initialize(game_filename: nil, slot: nil)
+  Save = Data.define(:game_name, :slot) do
+    def initialize(game_name: nil, slot: nil)
       slot = slot.to_s.strip
       slot = TextPlayer::AUTO_SAVE_SLOT if slot.empty?
       super
-    end
-
-    def game_name
-      game_filename&.delete_suffix(".z5")
     end
 
     def filename

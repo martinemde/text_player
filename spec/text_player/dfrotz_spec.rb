@@ -60,7 +60,7 @@ RSpec.describe TextPlayer::Dfrotz do
 
   # Instance tests that require dfrotz to be available
   context "when dfrotz is available" do
-    let(:game_path) { TextPlayer::GameUtils.full_path("zork1.z5") }
+    let(:game_path) { TextPlayer::Gamefile.new(name: "zork1", path: TextPlayer::GAME_DIR.join("zork1.z5")).full_path }
     let(:dfrotz) { described_class.new(game_path) }
 
     before do

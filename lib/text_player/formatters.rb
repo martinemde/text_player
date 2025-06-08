@@ -18,11 +18,6 @@ module TextPlayer
 
     # Base formatter with common parsing logic and feedback handling
     class BaseFormatter
-      LOCATION_PATTERNS = [
-        /^([A-Z][^.\n]*?)$/m, # First line starting with capital
-        /(You are in|You're in|This is) (the )?(.*?)(\.|$)/i
-      ].freeze
-
       SCORE_PATTERN = /Score:\s*(\d+)/i
       MOVES_PATTERN = /Moves:\s*(\d+)/i
       PROMPT_PATTERN = /^>\s*$/
@@ -33,37 +28,6 @@ module TextPlayer
       end
 
       protected
-
-      def extract_location(text)
-        # Try first line approach
-        first_line = text.split("\n").first&.strip
-        return first_line if first_line&.match?(/^[A-Z]/) && valid_location?(first_line)
-
-        # Try pattern matching
-        LOCATION_PATTERNS.each do |pattern|
-          match = text.match(pattern)
-          next unless match
-
-          location = case pattern
-          when LOCATION_PATTERNS[0] then match[1]
-          when LOCATION_PATTERNS[1] then match[3]
-          end
-
-          return location.strip if location && valid_location?(location)
-        end
-        nil
-      end
-
-      def extract_score(text)
-        match = text.match(SCORE_PATTERN)
-        match ? match[1].to_i : nil
-      end
-
-      def extract_moves(text)
-        match = text.match(MOVES_PATTERN)
-        match ? match[1].to_i : nil
-      end
-
       def has_prompt?(text)
         text.match?(PROMPT_PATTERN)
       end
@@ -72,9 +36,11 @@ module TextPlayer
 
       def valid_location?(location)
         location.length.positive? &&
-          !location.include?("I don't understand") &&
-          !location.include?("I can't") &&
-          !location.include?("You can't")
+          !location.start_with?("I don't ") &&
+          !location.start_with?("I can't ") &&
+          !location.start_with?("What do you ") &&
+          !location.start_with?("You're ") &&
+          !location.start_with?("You ")
       end
     end
 
@@ -88,17 +54,47 @@ module TextPlayer
     class DataFormatter < BaseFormatter
       def format(command_result)
         raw_output = command_result.raw_output
+        location, remaining_text = extract_location(raw_output)
+
         {
           type: "game_output",
-          location: extract_location(raw_output),
+          location: location,
           score: extract_score(raw_output),
           moves: extract_moves(raw_output),
-          output: clean_game_text(raw_output),
+          output: clean_game_text(remaining_text),
           has_prompt: has_prompt?(raw_output)
         }
       end
 
       private
+
+      def extract_location(lines, data)
+        first_line = lines.first&.strip
+
+        if first_line.include?("   ") # remove any extra info that is right aligned.
+          location = first_line.split(/   /, 2).first.strip
+          extract_score(lines, data)
+          extract_moves(lines, data)
+        else
+          location = first_line
+        end
+
+        data[:location] = location if valid_location?(location)
+
+        lines.drop(1)
+      end
+
+      def extract_score(text)
+        match = text.match(SCORE_PATTERN)
+        match ? match[1].to_i : nil
+      end
+
+      def extract_moves(text)
+        match = text.match(MOVES_PATTERN)
+        match ? match[1].to_i : nil
+      end
+
+
 
       def clean_game_text(text)
         # Remove score/moves lines and prompt, keep game narrative
@@ -106,6 +102,7 @@ module TextPlayer
         cleaned.gsub!(SCORE_PATTERN, "")
         cleaned.gsub!(MOVES_PATTERN, "")
         cleaned.gsub!(/^>\s*$/, "")
+        cleaned.squeeze!("\n")
         cleaned.strip
       end
     end
@@ -113,7 +110,7 @@ module TextPlayer
     # JSON formatter - returns JSON string of structured data
     class JsonFormatter < DataFormatter
       def format(command_result)
-        JSON.generate(super(command_result))
+        JSON.generate(super)
       end
     end
 
