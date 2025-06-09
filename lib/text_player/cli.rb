@@ -18,9 +18,7 @@ module TextPlayer
 
       session.run do |result|
         formatter.write(result, $stdout)
-        command = $stdin.gets
-        break if command.nil?
-        command.chomp
+        $stdin.gets
       end
     end
 

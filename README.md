@@ -4,6 +4,10 @@ A Ruby interface for running text-based interactive fiction games using the Frot
 
 Inspired by [@danielricks/textplayer](https://davidgriffith.gitlab.io/frotz/) - the original Python implementation.
 
+I have chosen not to distribute the games in the ruby gem. You'll need to clone this repository to use the games directly without the full pathname. This is out of an abundance of caution and respect to the owners. Offering them for download, as is done regularly, may be interpreted differently than distributing them in a package.
+
+I am grateful for the ability to use these games for learning and building. Zork is the game that got me started on MUDs as a kid, which is the reason I'm a programmer now.
+
 ## Requirements
 
 TextPlayer requires Frotz, a Z-Machine interpreter written by Stefan Jokisch in 1995-1997. More information [here](http://frotz.sourceforge.net/).
@@ -38,6 +42,12 @@ Or install it:
 
 ```bash
 $ gem install text_player
+```
+
+If you'd like to use the games included in the repository, clone it directly from github.com:
+
+```bash
+$ git clone git@github.com:martinemde/text_player.git
 ```
 
 ## Usage
@@ -85,43 +95,6 @@ game.restore('my_save')
 game.quit
 ```
 
-### Output Formatters
-
-TextPlayer supports different output formatters for various use cases:
-
-#### Shell Formatter (Default)
-Returns formatted text ready for interactive shell use:
-
-```ruby
-game = TextPlayer::Session.new('zork1.z5')
-output = game.start
-# Returns: Full game text with prompt (adds ">" if missing)
-puts output
-```
-
-#### Data Formatter
-Returns structured hash with parsed game information:
-
-```ruby
-game = TextPlayer::Session.new('zork1.z5')
-result = game.start
-
-puts result.location]    # "West of House"
-puts result.score]       # 0
-puts result.moves]       # 1
-puts result.output]      # Clean game text
-```
-
-#### JSON Formatter
-Returns JSON string of structured data:
-
-```ruby
-game = TextPlayer::Session.new('zork1.z5', formatter: :json)
-json_output = game.start
-data = JSON.parse(json_output)
-puts data['location']  # "West of House"
-```
-
 ### Save and Restore Operations
 
 ```ruby
@@ -166,13 +139,6 @@ game = TextPlayer::Session.new('zork1.z5', dfrotz: './frotz/dfrotz')
 game = TextPlayer::Session.new('zork1.z5', dfrotz: '/usr/local/bin/dfrotz')
 ```
 
-## Game Files
-
-You'll need Z-Machine game files (`.z3`, `.z5`, `.z8` extensions) to play. Many classic interactive fiction games are available from:
-
-- [The Interactive Fiction Archive](https://www.ifarchive.org/)
-- [Infocom games](http://www.infocom-if.org/downloads/downloads.html)
-
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
@@ -183,10 +149,23 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/martinemde/text_player.
 
+## Game Files
+
+You'll need Z-Machine game files (`.z3`, `.z5`, `.z8` extensions) to play. Many classic interactive fiction games are available from:
+
+- [The Interactive Fiction Archive](https://www.ifarchive.org/)
+- [Infocom games](http://www.infocom-if.org/downloads/downloads.html)
+
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
+I have included the same games from [@danielricks/textplayer](https://github.com/danielricks/textplayer), assuming that in the last ~10 years that it has not been a problem.
+
+The games are copyright and licensed by their respective owners.
+
+**Please open an issue on the repository or contact me directly if there are any concerns.**
+
 ## Credits
 
-This Ruby implementation was inspired by [@danielricks/textplayer](https://github.com/danielricks/textplayer), who wrote a Python interface for Frotz to facilitate training models to automatically play the game.
+This Ruby implementation was inspired and influenced by [@danielricks/textplayer](https://github.com/danielricks/textplayer), who wrote a Python interface for Frotz to facilitate training models to automatically play the game.
