@@ -32,7 +32,7 @@ RSpec.describe TextPlayer::Formatters::Shell do
           input: "look",
           raw_output: "original output",
           message: "custom message",
-          operation: :game
+          operation: :action
         )
         formatter = described_class.new(command_result)
         expect(formatter.to_s).to eq("custom message")
@@ -109,7 +109,7 @@ RSpec.describe TextPlayer::Formatters::Shell do
       hash = game_output_formatter(game_output).to_h
 
       expect(hash[:input]).to eq("look")
-      expect(hash[:operation]).to eq(:game)
+      expect(hash[:operation]).to eq(:action)
       expect(hash[:success]).to be true
       expect(hash[:raw_output]).to eq(game_output)
       expect(hash[:formatted_output]).to eq(game_output)
@@ -148,7 +148,7 @@ RSpec.describe TextPlayer::Formatters::Shell do
 
         output = stream.string
         expect(output).to include("You can't do that.\n")
-        expect(output).to include("\e[31m>\e[0m") # Red prompt for failure
+        expect(output).to include("\e[31m> \e[0m") # Red prompt for failure
       end
     end
 
@@ -159,7 +159,7 @@ RSpec.describe TextPlayer::Formatters::Shell do
 
         output = stream.string
         expect(output).to include("You look around.\n")
-        expect(output).to include("\e[32m>\e[0m") # Green prompt for success
+        expect(output).to include("\e[32m> \e[0m") # Green prompt for success
       end
     end
 
@@ -170,7 +170,7 @@ RSpec.describe TextPlayer::Formatters::Shell do
 
         output = stream.string
         expect(output).to include("You can't do that.\n\n")
-        expect(output).to include("\e[31m>\e[0m") # Red prompt for failure
+        expect(output).to include("\e[31m> \e[0m") # Red prompt for failure
       end
     end
 

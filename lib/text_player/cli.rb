@@ -14,11 +14,13 @@ module TextPlayer
       session = TextPlayer::Session.new(gamefile)
 
       formatter_type = options[:formatter].downcase.to_sym
-      formatter = TextPlayer::Formatters.create(formatter_type)
+      formatter = TextPlayer::Formatters.by_name(formatter_type)
 
       session.run do |result|
-        formatter.print(result, $stdout)
-        $stdin.gets.chomp
+        formatter.write(result, $stdout)
+        command = $stdin.gets
+        break if command.nil?
+        command.chomp
       end
     end
 

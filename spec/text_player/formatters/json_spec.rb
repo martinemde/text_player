@@ -27,7 +27,7 @@ RSpec.describe TextPlayer::Formatters::Json do
       parsed = JSON.parse(json_string)
 
       expect(parsed["input"]).to eq("look")
-      expect(parsed["operation"]).to eq("game")
+      expect(parsed["operation"]).to eq("action")
       expect(parsed["success"]).to be true
       expect(parsed["location"]).to eq("Treasure Room")
       expect(parsed["score"]).to eq(150)

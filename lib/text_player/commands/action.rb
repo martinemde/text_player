@@ -12,8 +12,14 @@ module TextPlayer
 
         CommandResult.from_game_output(
           input: input,
-          raw_output: raw_output
+          raw_output: raw_output,
+          operation: :action,
+          success: !failure_detected?(raw_output)
         )
+      end
+
+      def failure_detected?(output)
+        TextPlayer::FAILURE_PATTERNS.any? { |pattern| output.match?(pattern) }
       end
     end
   end

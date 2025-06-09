@@ -136,18 +136,14 @@ game.restore('before_dragon')
 ```ruby
 require 'text_player'
 
-game = TextPlayer::Session.new('zork1.z5', formatter: :shell)
-puts game.start
-
-loop do
-  command = game.formatter.prompt_for_command
-  break if command.nil? || command.downcase == 'quit'
-
-  response = game.call(command)
-  puts response
+game = TextPlayer::Session.new('zork1.z5')
+formatter = TextPlayer::Formatters::Shell
+game.run do |result|
+  formatter.new(result).write($stdout)
+  command = $stdin.gets
+  break if command.nil?
+  command
 end
-
-game.quit
 ```
 
 ### Error Handling

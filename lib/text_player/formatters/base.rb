@@ -6,6 +6,10 @@ module TextPlayer
   module Formatters
     # Base formatter with stream writing and common interface
     class Base
+      def self.write(command_result, stream)
+        new(command_result).write(stream)
+      end
+
       attr_reader :command_result
 
       def initialize(command_result)

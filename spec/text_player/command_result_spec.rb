@@ -9,7 +9,7 @@ RSpec.describe TextPlayer::CommandResult do
 
       expect(result.input).to eq("look")
       expect(result.raw_output).to eq("You see nothing special.")
-      expect(result.operation).to eq(:game)
+      expect(result.operation).to eq(:action)
       expect(result.success).to be true
       expect(result.message).to be_nil
       expect(result.details).to eq({})
@@ -58,7 +58,7 @@ RSpec.describe TextPlayer::CommandResult do
       )
 
       expect(result.input).to eq("look")
-      expect(result.operation).to eq(:game)
+      expect(result.operation).to eq(:action)
       expect(result.success).to be true
       expect(result.message).to be_nil
     end
@@ -70,7 +70,7 @@ RSpec.describe TextPlayer::CommandResult do
       )
 
       expect(result.input).to eq("xyzzy")
-      expect(result.operation).to eq(:game)
+      expect(result.operation).to eq(:action)
       expect(result.success).to be false
       expect(result.message).to be_nil
     end
@@ -121,21 +121,21 @@ RSpec.describe TextPlayer::CommandResult do
     end
   end
 
-  describe "#game_command?" do
+  describe "#action_command?" do
     it "returns true for game commands" do
-      result = described_class.new(input: "look", operation: :game)
-      expect(result.game_command?).to be true
+      result = described_class.new(input: "look", operation: :action)
+      expect(result.action_command?).to be true
     end
 
     it "returns false for system commands" do
       result = described_class.new(input: "save", operation: :save)
-      expect(result.game_command?).to be false
+      expect(result.action_command?).to be false
     end
   end
 
   describe "#system_command?" do
     it "returns false for game commands" do
-      result = described_class.new(input: "look", operation: :game)
+      result = described_class.new(input: "look", operation: :action)
       expect(result.system_command?).to be false
     end
 

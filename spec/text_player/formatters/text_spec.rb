@@ -23,7 +23,7 @@ RSpec.describe TextPlayer::Formatters::Text do
         input: "look",
         raw_output: "original output",
         message: "custom message",
-        operation: :game
+        operation: :action
       )
       formatter_with_message = described_class.new(command_result_with_message)
       expect(formatter_with_message.to_s).to eq("custom message\n\n")
@@ -42,7 +42,7 @@ RSpec.describe TextPlayer::Formatters::Text do
       end
 
       it "returns output with prompt removed and double newlines" do
-        expected = " Forest Path                                        Score: 25       Moves: 10\n\nForest Path\nYou are on a winding forest path. Tall trees tower above you,\ntheir leaves rustling in the gentle breeze."
+        expected = "Forest Path                                        Score: 25       Moves: 10\n\nForest Path\nYou are on a winding forest path. Tall trees tower above you,\ntheir leaves rustling in the gentle breeze."
         expect(formatter.to_s).to eq("#{expected}\n\n")
       end
     end
@@ -86,7 +86,7 @@ RSpec.describe TextPlayer::Formatters::Text do
       hash = formatter.to_h
       expect(hash[:input]).to eq("look")
       expect(hash[:raw_output]).to eq(game_output)
-      expect(hash[:operation]).to eq(:game)
+      expect(hash[:operation]).to eq(:action)
       expect(hash[:success]).to be true
     end
   end

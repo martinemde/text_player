@@ -5,12 +5,12 @@ module TextPlayer
   CommandResult = Data.define(:input, :raw_output, :operation, :success, :message, :details) do
     # Common failure patterns in text adventure games
 
-    def initialize(input:, raw_output: "", operation: :game, success: true, message: nil, **details)
+    def initialize(input:, raw_output: "", operation: :action, success: true, message: nil, **details)
       super(input:, raw_output:, operation:, success:, message:, details:)
     end
 
     # Factory method that auto-detects success/failure for game commands
-    def self.from_game_output(input:, raw_output:, operation: :game, **details)
+    def self.from_game_output(input:, raw_output:, operation: :action, **details)
       new(
         input: input,
         raw_output: raw_output,
@@ -24,9 +24,9 @@ module TextPlayer
       TextPlayer::FAILURE_PATTERNS.any? { |pattern| output.match?(pattern) }
     end
 
-    def game_command? = operation == :game
+    def action_command? = operation == :action
 
-    def system_command? = !game_command?
+    def system_command? = !action_command?
 
     def success? = success
 

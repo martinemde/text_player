@@ -15,8 +15,7 @@ module TextPlayer
       private
 
       def remove_prompt(content)
-        # Remove prompt at the end (> or similar)
-        content.gsub(/\n*>\s*$/, "")
+        content.gsub(TextPlayer::PROMPT_REGEX, "").strip
       end
     end
   end

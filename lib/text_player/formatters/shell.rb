@@ -7,7 +7,7 @@ module TextPlayer
     # Shell formatter - interactive presentation with prompts and colors
     class Shell < Base
       def to_s
-        if command_result.game_command?
+        if command_result.action_command?
           format_game_output
         else
           format_system_feedback
@@ -21,7 +21,7 @@ module TextPlayer
       end
 
       def write(stream)
-        if command_result.game_command?
+        if command_result.action_command?
           content, prompt = extract_prompt(display_content)
           stream.write(content)
           if prompt
@@ -36,7 +36,7 @@ module TextPlayer
       private
 
       def format_system_feedback
-        return command_result.raw_output if command_result.operation == :score
+        return command_result.raw_output if %i[start score].include?(command_result.operation)
 
         prefix = command_result.success? ? "\e[32m✓\e[0m" : "\e[31m✗\e[0m"
         feedback = "#{prefix} #{command_result.operation.upcase}: #{command_result.message}"
@@ -61,17 +61,9 @@ module TextPlayer
       def extract_prompt(content)
         # Look for prompt at the end (> or similar)
         # Match: content + optional newlines + > + optional spaces
-        if content =~ /^(.*?)(\n*>\s*)$/m
-          content_part = $1
-          newlines_and_prompt = $2
-          # Separate the newlines from the prompt
-          if newlines_and_prompt =~ /^(\n*)(>\s*)$/
-            newlines = $1
-            prompt = $2.strip
-            ["#{content_part}#{newlines}", prompt]
-          else
-            [content, nil]
-          end
+        if TextPlayer::PROMPT_REGEX.match?(content)
+          content = content.gsub(TextPlayer::PROMPT_REGEX, "").rstrip
+          [content + "\n\n", "> "]
         else
           [content, nil]
         end

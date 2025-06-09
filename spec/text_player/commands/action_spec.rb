@@ -14,7 +14,7 @@ RSpec.describe TextPlayer::Commands::Action do
     result = command.execute(mock_process)
 
     expect(result.input).to eq("look")
-    expect(result.operation).to eq(:game)
+    expect(result.operation).to eq(:action)
     expect(result.success).to be true
     expect(result.raw_output).to eq("You see nothing special.\n>")
   end
