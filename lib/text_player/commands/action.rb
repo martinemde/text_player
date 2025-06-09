@@ -10,7 +10,7 @@ module TextPlayer
         game.write(input)
         raw_output = game.read_until(TextPlayer::PROMPT_REGEX)
 
-        CommandResult.from_game_output(
+        CommandResult.new(
           input: input,
           raw_output: raw_output,
           operation: :action,

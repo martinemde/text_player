@@ -15,7 +15,7 @@ module TextPlayer
       private
 
       def remove_prompt(content)
-        content.gsub(TextPlayer::PROMPT_REGEX, "").strip
+        content.gsub(TextPlayer::PROMPT_REGEX, "").rstrip
       end
     end
   end

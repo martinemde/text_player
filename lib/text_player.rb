@@ -25,6 +25,7 @@ module TextPlayer
     /You're not/i,
     /I can't see/i,
     /That doesn't make sense/i,
+    /That's not a verb I recognize/i,
     /What do you want to/i,
     /You don't see/i,
     /There is no/i,

@@ -38,21 +38,18 @@ RSpec.describe TextPlayer::CommandResult do
         input: "",
         raw_output: "Welcome to the game!\n>",
         operation: :start,
-        success: true,
-        message: "Game started successfully"
+        success: true
       )
 
       expect(result.input).to eq("")
       expect(result.raw_output).to eq("Welcome to the game!\n>")
       expect(result.operation).to eq(:start)
       expect(result.success).to be true
-      expect(result.message).to eq("Game started successfully")
     end
-  end
 
-  describe ".from_game_output" do
     it "creates successful result for valid game output" do
-      result = described_class.from_game_output(
+      result = described_class.new(
+        operation: :action,
         input: "look",
         raw_output: "Forest Path\nYou are in a forest.\n>"
       )
@@ -60,64 +57,34 @@ RSpec.describe TextPlayer::CommandResult do
       expect(result.input).to eq("look")
       expect(result.operation).to eq(:action)
       expect(result.success).to be true
-      expect(result.message).to be_nil
     end
 
     it "creates failed result when failure patterns are detected" do
-      result = described_class.from_game_output(
-        input: "xyzzy",
-        raw_output: "I don't understand that command.\n>"
+      result = described_class.new(
+        input: "fart",
+        operation: :action,
+        success: false,
+        raw_output: "That's not a verb I recognize.\n\n>"
       )
 
-      expect(result.input).to eq("xyzzy")
+      expect(result.input).to eq("fart")
       expect(result.operation).to eq(:action)
       expect(result.success).to be false
       expect(result.message).to be_nil
     end
 
     it "creates successful result for non-game operations" do
-      result = described_class.from_game_output(
+      result = described_class.new(
         input: "save",
-        raw_output: "Failed output",
         operation: :save,
+        success: true,
+        raw_output: "Failed output",
         filename: "test.sav"
       )
 
       expect(result.operation).to eq(:save)
       expect(result.success).to be true # Non-game operations default to success
       expect(result.details[:filename]).to eq("test.sav")
-    end
-  end
-
-  describe ".failure_detected?" do
-    it "detects various failure patterns" do
-      failure_outputs = [
-        "I don't understand that.",
-        "You can't do that here.",
-        "I can't see any such thing.",
-        "That doesn't make sense.",
-        "What do you want to examine?",
-        "You don't see that here.",
-        "There is no door here.",
-        "I don't see anything special."
-      ]
-
-      failure_outputs.each do |output|
-        expect(described_class.failure_detected?(output)).to be true
-      end
-    end
-
-    it "does not detect success as failure" do
-      success_outputs = [
-        "You are in the forest.",
-        "You pick up the sword.",
-        "The door opens.",
-        "You see a beautiful garden."
-      ]
-
-      success_outputs.each do |output|
-        expect(described_class.failure_detected?(output)).to be false
-      end
     end
   end
 

@@ -8,7 +8,9 @@ RSpec.describe TextPlayer::Formatters::Json do
   end
 
   let(:command_result) do
-    TextPlayer::CommandResult.from_game_output(
+    TextPlayer::CommandResult.new(
+      operation: :action,
+      success: true,
       input: "look",
       raw_output: game_output
     )
@@ -42,7 +44,9 @@ RSpec.describe TextPlayer::Formatters::Json do
       end
 
       let(:command_result) do
-        TextPlayer::CommandResult.from_game_output(
+        TextPlayer::CommandResult.new(
+          operation: :action,
+          success: true,
           input: "look",
           raw_output: timed_output
         )
@@ -61,7 +65,9 @@ RSpec.describe TextPlayer::Formatters::Json do
     context "with failed command" do
       let(:failed_output) { "I don't understand that command.\n>" }
       let(:failed_result) do
-        TextPlayer::CommandResult.from_game_output(
+        TextPlayer::CommandResult.new(
+          operation: :action,
+          success: false,
           input: "invalid",
           raw_output: failed_output
         )
@@ -109,7 +115,9 @@ RSpec.describe TextPlayer::Formatters::Json do
     context "with minimal game output" do
       let(:minimal_output) { "Ok.\n>" }
       let(:command_result) do
-        TextPlayer::CommandResult.from_game_output(
+        TextPlayer::CommandResult.new(
+          operation: :action,
+          success: true,
           input: "take key",
           raw_output: minimal_output
         )
@@ -158,7 +166,9 @@ RSpec.describe TextPlayer::Formatters::Json do
       ]
 
       json_objects = outputs.map do |output|
-        result = TextPlayer::CommandResult.from_game_output(
+        result = TextPlayer::CommandResult.new(
+          operation: :action,
+          success: true,
           input: "test",
           raw_output: output
         )

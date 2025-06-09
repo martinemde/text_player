@@ -10,7 +10,9 @@ RSpec.describe TextPlayer::Formatters::Data do
       end
 
       let(:command_result) do
-        TextPlayer::CommandResult.from_game_output(
+        TextPlayer::CommandResult.new(
+          operation: :action,
+          success: true,
           input: "look",
           raw_output: game_output
         )
@@ -50,7 +52,9 @@ RSpec.describe TextPlayer::Formatters::Data do
       end
 
       let(:command_result) do
-        TextPlayer::CommandResult.from_game_output(
+        TextPlayer::CommandResult.new(
+          operation: :action,
+          success: true,
           input: "look",
           raw_output: game_output
         )
@@ -85,7 +89,9 @@ RSpec.describe TextPlayer::Formatters::Data do
       end
 
       let(:command_result) do
-        TextPlayer::CommandResult.from_game_output(
+        TextPlayer::CommandResult.new(
+          operation: :action,
+          success: true,
           input: "look",
           raw_output: game_output
         )
@@ -119,7 +125,9 @@ RSpec.describe TextPlayer::Formatters::Data do
     context "with error messages" do
       let(:game_output) { "I don't know the word \"fart\".\n\n>" }
       let(:command_result) do
-        TextPlayer::CommandResult.from_game_output(
+        TextPlayer::CommandResult.new(
+          operation: :action,
+          success: false,
           input: "fart",
           raw_output: game_output
         )
@@ -152,7 +160,9 @@ RSpec.describe TextPlayer::Formatters::Data do
         context "with error: #{error_msg}" do
           let(:game_output) { "#{error_msg}\n\n>" }
           let(:command_result) do
-            TextPlayer::CommandResult.from_game_output(
+            TextPlayer::CommandResult.new(
+              operation: :action,
+              success: false,
               input: "test",
               raw_output: game_output
             )
@@ -174,7 +184,9 @@ RSpec.describe TextPlayer::Formatters::Data do
     context "with no extracted data" do
       let(:game_output) { "Simple response without location or stats.\n>" }
       let(:command_result) do
-        TextPlayer::CommandResult.from_game_output(
+        TextPlayer::CommandResult.new(
+          operation: :action,
+          success: true,
           input: "test",
           raw_output: game_output
         )
@@ -198,7 +210,9 @@ RSpec.describe TextPlayer::Formatters::Data do
     context "with partial data" do
       let(:game_output) { " Forest                                              Score: 42\n\nYou are in a dark forest.\n>" }
       let(:command_result) do
-        TextPlayer::CommandResult.from_game_output(
+        TextPlayer::CommandResult.new(
+          operation: :action,
+          success: true,
           input: "look",
           raw_output: game_output
         )
@@ -229,7 +243,9 @@ RSpec.describe TextPlayer::Formatters::Data do
     end
 
     let(:command_result) do
-      TextPlayer::CommandResult.from_game_output(
+      TextPlayer::CommandResult.new(
+        operation: :action,
+        success: true,
         input: "look",
         raw_output: game_output
       )
@@ -252,7 +268,9 @@ RSpec.describe TextPlayer::Formatters::Data do
     end
 
     let(:command_result) do
-      TextPlayer::CommandResult.from_game_output(
+      TextPlayer::CommandResult.new(
+        operation: :action,
+        success: true,
         input: "look",
         raw_output: game_output
       )

@@ -42,7 +42,16 @@ $ gem install text_player
 
 ## Usage
 
+You can use the command line to check if it's working:
+
+```bash
+$ text_player help
+$ text_player play zork1
+```
+
 ### Basic Example
+
+The point of this library is to allow you to run text based adventure games programmatically.
 
 ```ruby
 require 'text_player'
@@ -63,8 +72,8 @@ response = game.call('go north')
 puts response
 
 # Get current score
-if score = game.get_score
-  current_score, max_score = score
+if score = game.score
+  current_score, max_score = score.score, score.out_of
   puts "Score: #{current_score}/#{max_score}"
 end
 
@@ -78,13 +87,13 @@ game.quit
 
 ### Output Formatters
 
-TextPlayer supports three different output formatters for various use cases:
+TextPlayer supports different output formatters for various use cases:
 
 #### Shell Formatter (Default)
 Returns formatted text ready for interactive shell use:
 
 ```ruby
-game = TextPlayer::Session.new('zork1.z5', formatter: :shell)
+game = TextPlayer::Session.new('zork1.z5')
 output = game.start
 # Returns: Full game text with prompt (adds ">" if missing)
 puts output
@@ -94,14 +103,13 @@ puts output
 Returns structured hash with parsed game information:
 
 ```ruby
-game = TextPlayer::Session.new('zork1.z5', formatter: :data)
+game = TextPlayer::Session.new('zork1.z5')
 result = game.start
 
-puts result[:location]    # "West of House"
-puts result[:score]       # 0
-puts result[:moves]       # 1
-puts result[:output]      # Clean game text
-puts result[:has_prompt]  # true/false
+puts result.location]    # "West of House"
+puts result.score]       # 0
+puts result.moves]       # 1
+puts result.output]      # Clean game text
 ```
 
 #### JSON Formatter
@@ -143,21 +151,6 @@ game.run do |result|
   command = $stdin.gets
   break if command.nil?
   command
-end
-```
-
-### Error Handling
-
-```ruby
-begin
-  game = TextPlayer::Session.new('nonexistent.z5')
-rescue ArgumentError => e
-  puts "Error: #{e.message}"
-end
-
-# Check if game is still running
-if game.running?
-  puts "Game is active"
 end
 ```
 

@@ -5,7 +5,9 @@ require "spec_helper"
 RSpec.describe TextPlayer::Formatters::Text do
   let(:game_output) { "You are in a dark room.\n>" }
   let(:command_result) do
-    TextPlayer::CommandResult.from_game_output(
+    TextPlayer::CommandResult.new(
+      operation: :action,
+      success: true,
       input: "look",
       raw_output: game_output
     )
@@ -20,10 +22,11 @@ RSpec.describe TextPlayer::Formatters::Text do
 
     it "returns message if present instead of raw output" do
       command_result_with_message = TextPlayer::CommandResult.new(
+        operation: :action,
+        success: true,
         input: "look",
         raw_output: "original output",
-        message: "custom message",
-        operation: :action
+        message: "custom message"
       )
       formatter_with_message = described_class.new(command_result_with_message)
       expect(formatter_with_message.to_s).to eq("custom message\n\n")
@@ -35,14 +38,16 @@ RSpec.describe TextPlayer::Formatters::Text do
       end
 
       let(:command_result) do
-        TextPlayer::CommandResult.from_game_output(
+        TextPlayer::CommandResult.new(
+          operation: :action,
+          success: true,
           input: "look",
           raw_output: complex_output
         )
       end
 
       it "returns output with prompt removed and double newlines" do
-        expected = "Forest Path                                        Score: 25       Moves: 10\n\nForest Path\nYou are on a winding forest path. Tall trees tower above you,\ntheir leaves rustling in the gentle breeze."
+        expected = " Forest Path                                        Score: 25       Moves: 10\n\nForest Path\nYou are on a winding forest path. Tall trees tower above you,\ntheir leaves rustling in the gentle breeze."
         expect(formatter.to_s).to eq("#{expected}\n\n")
       end
     end

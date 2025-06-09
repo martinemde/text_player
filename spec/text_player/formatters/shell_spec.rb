@@ -7,13 +7,23 @@ RSpec.describe TextPlayer::Formatters::Shell do
     " Library                                             Score: 30       Moves: 15\n\nLibrary\nYou are in a dusty library filled with ancient books.\nSunlight streams through tall windows.\n\n>"
   end
 
-  def game_output_formatter(raw_output, input: "look")
-    command_result = TextPlayer::CommandResult.from_game_output(input:, raw_output:)
+  def game_output_formatter(raw_output, input: "look", success: true)
+    command_result = TextPlayer::CommandResult.new(
+      operation: :action,
+      success:,
+      input:,
+      raw_output:
+    )
     described_class.new(command_result)
   end
 
   def system_output_formatter(input: "command", **kwargs)
-    command_result = TextPlayer::CommandResult.new(input:, **kwargs)
+    command_result = TextPlayer::CommandResult.new(
+      operation: :system,
+      success: true,
+      input:,
+      **kwargs
+    )
     described_class.new(command_result)
   end
 
@@ -29,10 +39,11 @@ RSpec.describe TextPlayer::Formatters::Shell do
 
       it "returns message if present instead of raw output" do
         command_result = TextPlayer::CommandResult.new(
+          operation: :action,
+          success: true,
           input: "look",
           raw_output: "original output",
-          message: "custom message",
-          operation: :action
+          message: "custom message"
         )
         formatter = described_class.new(command_result)
         expect(formatter.to_s).to eq("custom message")
@@ -141,13 +152,13 @@ RSpec.describe TextPlayer::Formatters::Shell do
   end
 
   describe "#write" do
-    context "with game command" do
+    context "with failed game command" do
       it "writes content and colored prompt separately" do
         stream = StringIO.new
-        game_output_formatter("You can't do that.\n>").write(stream)
+        game_output_formatter("You can't do that.\n\n>", success: false).write(stream)
 
         output = stream.string
-        expect(output).to include("You can't do that.\n")
+        expect(output).to include("You can't do that.\n\n")
         expect(output).to include("\e[31m> \e[0m") # Red prompt for failure
       end
     end
@@ -155,22 +166,11 @@ RSpec.describe TextPlayer::Formatters::Shell do
     context "with successful game command" do
       it "writes content and green prompt" do
         stream = StringIO.new
-        game_output_formatter("You look around.\n>", input: "look").write(stream)
+        game_output_formatter("You look around.\n>", input: "look", success: true).write(stream)
 
         output = stream.string
         expect(output).to include("You look around.\n")
         expect(output).to include("\e[32m> \e[0m") # Green prompt for success
-      end
-    end
-
-    context "with failed game command with double newlines" do
-      it "writes content and colored prompt" do
-        stream = StringIO.new
-        game_output_formatter("You can't do that.\n\n>").write(stream)
-
-        output = stream.string
-        expect(output).to include("You can't do that.\n\n")
-        expect(output).to include("\e[31m> \e[0m") # Red prompt for failure
       end
     end
 
