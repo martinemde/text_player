@@ -7,7 +7,7 @@ module TextPlayer
     # Shell formatter - interactive presentation with prompts and colors
     class Shell < Base
       def to_s
-        if command_result.action_command?
+        if command_result.action?
           format_game_output
         else
           format_system_feedback
@@ -21,7 +21,7 @@ module TextPlayer
       end
 
       def write(stream)
-        if command_result.action_command?
+        if command_result.action?
           content, prompt = extract_prompt(display_content)
           stream.write(content)
           if prompt

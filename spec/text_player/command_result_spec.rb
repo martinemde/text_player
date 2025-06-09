@@ -88,15 +88,15 @@ RSpec.describe TextPlayer::CommandResult do
     end
   end
 
-  describe "#action_command?" do
+  describe "#action?" do
     it "returns true for game commands" do
       result = described_class.new(input: "look", operation: :action)
-      expect(result.action_command?).to be true
+      expect(result.action?).to be true
     end
 
     it "returns false for system commands" do
       result = described_class.new(input: "save", operation: :save)
-      expect(result.action_command?).to be false
+      expect(result.action?).to be false
     end
   end
 

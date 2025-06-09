@@ -9,9 +9,9 @@ module TextPlayer
       super(input:, raw_output:, operation:, success:, message:, details:)
     end
 
-    def action_command? = operation == :action
+    def action? = operation == :action
 
-    def system_command? = !action_command?
+    def system_command? = !action?
 
     def success? = success
 
