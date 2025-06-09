@@ -27,7 +27,7 @@ module TextPlayer
       @game.start
       @started = true
 
-      start_command = Commands::StartCommand.new
+      start_command = Commands::Start.new
       @start_result = execute_command(start_command)
     end
 
@@ -49,22 +49,22 @@ module TextPlayer
     end
 
     def score
-      command = Commands::ScoreCommand.new
+      command = Commands::Score.new
       execute_command(command)
     end
 
     def save(slot = nil)
-      command = Commands::SaveCommand.new(save: Save.new(game_name: @gamefile.name, slot:))
+      command = Commands::Save.new(save: Save.new(game_name: @gamefile.name, slot:))
       execute_command(command)
     end
 
     def restore(slot = nil)
-      command = Commands::RestoreCommand.new(save: Save.new(game_name: @gamefile.name, slot:))
+      command = Commands::Restore.new(save: Save.new(game_name: @gamefile.name, slot:))
       execute_command(command)
     end
 
     def quit
-      command = Commands::QuitCommand.new
+      command = Commands::Quit.new
       execute_command(command)
     end
 

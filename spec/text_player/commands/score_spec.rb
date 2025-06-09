@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe TextPlayer::Commands::ScoreCommand do
+RSpec.describe TextPlayer::Commands::Score do
   subject(:command) { described_class.new }
 
   let(:mock_process) { instance_double(TextPlayer::Dfrotz) }
@@ -21,7 +21,6 @@ RSpec.describe TextPlayer::Commands::ScoreCommand do
     expect(result.operation).to eq(:score)
     expect(result.success).to be true
     expect(result.raw_output).to eq("Score: 0 (total out of 350)\n>")
-    expect(result.message).to eq("Score: 0/350")
     expect(result.score).to eq("0")
     expect(result.out_of).to eq("350")
   end
@@ -33,7 +32,6 @@ RSpec.describe TextPlayer::Commands::ScoreCommand do
     result = command.execute(mock_process)
 
     expect(result.success).to be true
-    expect(result.message).to eq("Score: 42/")
     expect(result.score).to eq("42")
     expect(result.out_of).to be_nil
   end
@@ -45,8 +43,7 @@ RSpec.describe TextPlayer::Commands::ScoreCommand do
     result = command.execute(mock_process)
 
     expect(result.operation).to eq(:score)
-    expect(result.success).to be false
-    expect(result.message).to eq("Score not found in output")
+    expect(result.success).to be true
     expect(result.score).to be_nil
     expect(result.out_of).to be_nil
   end

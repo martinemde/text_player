@@ -6,7 +6,7 @@ module TextPlayer
   module Commands
     # Command for starting the game
     # This is used to start the game and is not accessible by the user.
-    StartCommand = Data.define do
+    Start = Data.define do
       def input
         nil
       end
@@ -16,12 +16,15 @@ module TextPlayer
 
         # Handle "Press any key" prompts - be more specific
         max_iterations = 5
-        while /(Press|Hit|More)\s+/i.match?(raw_output)
+        lines = raw_output.lines
+        while /\A\W*(Press|Hit|More)\s+.*\z/i.match?(lines.last) # if last line is a continuation prompt
+          lines.pop
           game.write(" ")
-          raw_output += game.read_until(TextPlayer::PROMPT_REGEX)
+          lines.concat game.read_until(TextPlayer::PROMPT_REGEX).lines
           max_iterations -= 1
           break if max_iterations.zero?
         end
+        raw_output = lines.join
 
         # Skip introduction if offered
         if raw_output.include?("introduction")
@@ -33,8 +36,7 @@ module TextPlayer
           input: input,
           raw_output: raw_output,
           operation: :start,
-          success: true,
-          message: "Game started successfully"
+          success: true
         )
       end
     end

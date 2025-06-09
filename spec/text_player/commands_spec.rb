@@ -4,64 +4,64 @@ require "spec_helper"
 
 RSpec.describe TextPlayer::Commands do
   describe ".create" do
-    it "creates ScoreCommand for score input" do
+    it "creates Score for score input" do
       command = described_class.create("score", game_name: "zork1")
-      expect(command).to be_a(TextPlayer::Commands::ScoreCommand)
+      expect(command).to be_a(TextPlayer::Commands::Score)
       expect(command.input).to eq("score")
     end
 
-    it "creates ActionCommand for generic input" do
+    it "creates Action for generic input" do
       command = described_class.create("look", game_name: "zork1")
-      expect(command).to be_a(TextPlayer::Commands::ActionCommand)
+      expect(command).to be_a(TextPlayer::Commands::Action)
       expect(command.input).to eq("look")
     end
 
-    it "creates SaveCommand for save input" do
+    it "creates Save for save input" do
       command = described_class.create("save", game_name: "zork1")
-      expect(command).to be_a(TextPlayer::Commands::SaveCommand)
-      expect(command.save.filename).to eq("saves/zork1_autosave.qzl")
-      expect(command.save.slot).to eq(TextPlayer::AUTO_SAVE_SLOT)
+      expect(command).to be_a(TextPlayer::Commands::Save)
+      expect(command.savefile.filename).to eq("saves/zork1_autosave.qzl")
+      expect(command.savefile.slot).to eq(TextPlayer::AUTO_SAVE_SLOT)
     end
 
-    it "creates SaveCommand for save input with argument" do
+    it "creates Save for save input with argument" do
       command = described_class.create("save checkpoint", game_name: "zork1")
-      expect(command).to be_a(TextPlayer::Commands::SaveCommand)
-      expect(command.save.filename).to eq("saves/zork1_checkpoint.qzl")
-      expect(command.save.slot).to eq("checkpoint")
+      expect(command).to be_a(TextPlayer::Commands::Save)
+      expect(command.savefile.filename).to eq("saves/zork1_checkpoint.qzl")
+      expect(command.savefile.slot).to eq("checkpoint")
     end
 
-    it "creates RestoreCommand for restore input" do
+    it "creates Restore for restore input" do
       command = described_class.create("restore", game_name: "zork1")
-      expect(command).to be_a(TextPlayer::Commands::RestoreCommand)
+      expect(command).to be_a(TextPlayer::Commands::Restore)
       expect(command.input).to eq("restore")
-      expect(command.save.filename).to eq("saves/zork1_autosave.qzl")
-      expect(command.save.slot).to eq(TextPlayer::AUTO_SAVE_SLOT)
+      expect(command.savefile.filename).to eq("saves/zork1_autosave.qzl")
+      expect(command.savefile.slot).to eq(TextPlayer::AUTO_SAVE_SLOT)
     end
 
-    it "creates RestoreCommand with slot for restore with argument" do
+    it "creates Restore with slot for restore with argument" do
       command = described_class.create("restore checkpoint", game_name: "zork1")
-      expect(command).to be_a(TextPlayer::Commands::RestoreCommand)
-      expect(command.save.filename).to eq("saves/zork1_checkpoint.qzl")
-      expect(command.save.slot).to eq("checkpoint")
+      expect(command).to be_a(TextPlayer::Commands::Restore)
+      expect(command.savefile.filename).to eq("saves/zork1_checkpoint.qzl")
+      expect(command.savefile.slot).to eq("checkpoint")
     end
 
-    it "creates QuitCommand for quit input" do
+    it "creates Quit for quit input" do
       command = described_class.create("quit", game_name: "zork1")
-      expect(command).to be_a(TextPlayer::Commands::QuitCommand)
+      expect(command).to be_a(TextPlayer::Commands::Quit)
       expect(command.input).to eq("quit")
     end
 
     it "handles case insensitive input" do
       save_command = described_class.create("SAVE", game_name: "zork1")
-      expect(save_command).to be_a(TextPlayer::Commands::SaveCommand)
+      expect(save_command).to be_a(TextPlayer::Commands::Save)
 
       quit_command = described_class.create("Quit", game_name: "zork1")
-      expect(quit_command).to be_a(TextPlayer::Commands::QuitCommand)
+      expect(quit_command).to be_a(TextPlayer::Commands::Quit)
     end
 
     it "handles whitespace in input" do
       command = described_class.create("  save  ", game_name: "zork1")
-      expect(command).to be_a(TextPlayer::Commands::SaveCommand)
+      expect(command).to be_a(TextPlayer::Commands::Save)
     end
   end
 end

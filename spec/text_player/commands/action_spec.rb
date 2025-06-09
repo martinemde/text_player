@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe TextPlayer::Commands::ActionCommand do
+RSpec.describe TextPlayer::Commands::Action do
   subject(:command) { described_class.new(input: "look") }
 
   let(:mock_process) { instance_double(TextPlayer::Dfrotz) }

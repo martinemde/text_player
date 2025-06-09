@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe TextPlayer::Commands::QuitCommand do
+RSpec.describe TextPlayer::Commands::Quit do
   subject(:command) { described_class.new }
 
   let(:mock_process) { instance_double(TextPlayer::Dfrotz) }

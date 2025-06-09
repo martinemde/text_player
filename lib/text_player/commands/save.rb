@@ -5,7 +5,7 @@ require_relative "../command_result"
 module TextPlayer
   module Commands
     # Command for saving game state
-    SaveCommand = Data.define(:save) do
+    Save = Data.define(:savefile) do
       def input
         "save"
       end
@@ -15,7 +15,7 @@ module TextPlayer
         # instead we will let dfrotz handle it in case the save fails.
         game.write(input)
         game.read_until(TextPlayer::FILENAME_PROMPT_REGEX)
-        game.write(save.filename)
+        game.write(savefile.filename)
 
         result = game.read_until(/Overwrite existing file\? |Ok\.|Failed\.|>/i)
 
@@ -26,11 +26,9 @@ module TextPlayer
 
         success = result.include?("Ok.")
         message = if success
-          "Game saved successfully"
-        elsif result.include?("Failed.")
-          "Save operation failed"
+          "[#{savefile.slot}] Game saved successfully"
         else
-          "Save completed"
+          "Save operation failed"
         end
 
         CommandResult.new(
@@ -39,8 +37,8 @@ module TextPlayer
           operation: :save,
           success: success,
           message: message,
-          slot: save.slot,
-          filename: save.filename
+          slot: savefile.slot,
+          filename: savefile.filename
         )
       end
     end

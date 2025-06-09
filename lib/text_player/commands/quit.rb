@@ -5,7 +5,7 @@ require_relative "../command_result"
 module TextPlayer
   module Commands
     # Command for quitting the game
-    QuitCommand = Data.define do
+    Quit = Data.define do
       def input
         "quit"
       end

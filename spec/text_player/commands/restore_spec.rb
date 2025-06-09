@@ -2,14 +2,14 @@
 
 require "spec_helper"
 
-RSpec.describe TextPlayer::Commands::RestoreCommand do
-  subject(:command) { described_class.new(save: save) }
+RSpec.describe TextPlayer::Commands::Restore do
+  subject(:command) { described_class.new(savefile: savefile) }
 
-  let(:save) { instance_double(TextPlayer::Save, exist?: true, slot: "save1", filename: "saves/zork1_save1.qzl") }
+  let(:savefile) { instance_double(TextPlayer::Savefile, exist?: true, slot: "save1", filename: "saves/zork1_save1.qzl") }
   let(:mock_process) { instance_double(TextPlayer::Dfrotz) }
 
   it "returns failure when save file doesn't exist" do
-    allow(save).to receive(:exist?).and_return(false)
+    allow(savefile).to receive(:exist?).and_return(false)
 
     result = command.execute(mock_process)
 

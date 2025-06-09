@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe TextPlayer::Commands::StartCommand do
+RSpec.describe TextPlayer::Commands::Start do
   subject(:command) { described_class.new }
 
   let(:mock_process) { instance_double(TextPlayer::Dfrotz) }
@@ -19,7 +19,6 @@ RSpec.describe TextPlayer::Commands::StartCommand do
     expect(result.input).to be_nil
     expect(result.operation).to eq(:start)
     expect(result.success).to be true
-    expect(result.message).to eq("Game started successfully")
     expect(result.raw_output).to eq("Welcome to the game!\n>")
   end
 
@@ -34,7 +33,6 @@ RSpec.describe TextPlayer::Commands::StartCommand do
 
     expect(result.operation).to eq(:start)
     expect(result.success).to be true
-    expect(result.message).to eq("Game started successfully")
   end
 
   it "skips introduction when offered" do
@@ -46,7 +44,6 @@ RSpec.describe TextPlayer::Commands::StartCommand do
 
     expect(result.operation).to eq(:start)
     expect(result.success).to be true
-    expect(result.message).to eq("Game started successfully")
   end
 
   it "handles both press key and introduction prompts" do
@@ -59,6 +56,5 @@ RSpec.describe TextPlayer::Commands::StartCommand do
 
     expect(result.operation).to eq(:start)
     expect(result.success).to be true
-    expect(result.message).to eq("Game started successfully")
   end
 end

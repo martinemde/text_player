@@ -2,10 +2,10 @@
 
 require "spec_helper"
 
-RSpec.describe TextPlayer::Commands::SaveCommand do
-  subject(:command) { described_class.new(save: save) }
+RSpec.describe TextPlayer::Commands::Save do
+  subject(:command) { described_class.new(savefile: savefile) }
 
-  let(:save) { instance_double(TextPlayer::Save, slot: "save1", filename: "saves/zork1_save1.qzl") }
+  let(:savefile) { instance_double(TextPlayer::Savefile, slot: "save1", filename: "saves/zork1_save1.qzl") }
   let(:mock_process) { instance_double(TextPlayer::Dfrotz) }
 
   it "executes save operation successfully" do
@@ -18,7 +18,7 @@ RSpec.describe TextPlayer::Commands::SaveCommand do
 
     expect(result.operation).to eq(:save)
     expect(result.success).to be true
-    expect(result.message).to eq("Game saved successfully")
+    expect(result.message).to eq("[save1] Game saved successfully")
     expect(result.filename).to eq("saves/zork1_save1.qzl")
     expect(result.slot).to eq("save1")
   end
@@ -35,7 +35,7 @@ RSpec.describe TextPlayer::Commands::SaveCommand do
 
     expect(result.operation).to eq(:save)
     expect(result.success).to be true
-    expect(result.message).to eq("Game saved successfully")
+    expect(result.message).to eq("[save1] Game saved successfully")
   end
 
   it "handles save failure" do
@@ -51,18 +51,5 @@ RSpec.describe TextPlayer::Commands::SaveCommand do
     expect(result.message).to eq("Save operation failed")
     expect(result.filename).to eq("saves/zork1_save1.qzl")
     expect(result.slot).to eq("save1")
-  end
-
-  it "handles other responses" do
-    allow(mock_process).to receive(:write).with("save")
-    allow(mock_process).to receive(:read_until).with(TextPlayer::FILENAME_PROMPT_REGEX).and_return("")
-    allow(mock_process).to receive(:write).with("saves/zork1_save1.qzl")
-    allow(mock_process).to receive(:read_until).with(/Overwrite existing file\? |Ok\.|Failed\.|>/i).and_return(">")
-
-    result = command.execute(mock_process)
-
-    expect(result.operation).to eq(:save)
-    expect(result.success).to be false
-    expect(result.message).to eq("Save completed")
   end
 end

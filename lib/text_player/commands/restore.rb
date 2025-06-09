@@ -5,26 +5,26 @@ require_relative "../command_result"
 module TextPlayer
   module Commands
     # Command for restoring game state
-    RestoreCommand = Data.define(:save) do
+    Restore = Data.define(:savefile) do
       def input
         "restore"
       end
 
       def execute(game)
-        unless save.exist?
+        unless savefile.exist?
           return CommandResult.new(
             input: input,
             operation: :restore,
             success: false,
             message: "Restore failed - file not found",
-            slot: save.slot,
-            filename: save.filename
+            slot: savefile.slot,
+            filename: savefile.filename
           )
         end
 
         game.write(input)
         game.read_until(TextPlayer::FILENAME_PROMPT_REGEX)
-        game.write(save.filename)
+        game.write(savefile.filename)
 
         result = game.read_until(/Ok\.|Failed\.|not found|>/i)
 
@@ -43,8 +43,8 @@ module TextPlayer
           operation: :restore,
           success: success,
           message: message,
-          slot: save.slot,
-          filename: save.filename
+          slot: savefile.slot,
+          filename: savefile.filename
         )
       end
     end
