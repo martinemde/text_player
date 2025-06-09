@@ -32,10 +32,6 @@ RSpec.describe TextPlayer::Formatters::Data do
         expect(formatter.to_h[:moves]).to eq(26)
       end
 
-      it "has prompt" do
-        expect(formatter.to_h[:has_prompt]).to be true
-      end
-
       it "cleans game text preserving description" do
         cleaned = formatter.to_h[:output]
         expect(cleaned).to include("Canyon Bottom")
@@ -264,7 +260,20 @@ RSpec.describe TextPlayer::Formatters::Data do
 
   describe "preservation of unextracted data" do
     let(:game_output) do
-      " Complex Location                                     Score: 10\n\nComplex Location\nFirst paragraph of description.\n\nSecond paragraph with more details.\nAnd even more text here.\n\nFinal paragraph.\n>"
+      <<~GAME_OUTPUT
+        Complex Location                                     Score: 10
+        Complex Location
+
+        First paragraph of description.
+
+        Second paragraph with more details.
+
+        And even more text here.
+
+        Final paragraph.
+
+        >
+      GAME_OUTPUT
     end
 
     let(:command_result) do

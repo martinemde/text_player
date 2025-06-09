@@ -15,7 +15,8 @@ module TextPlayer
 
   AUTO_SAVE_SLOT = "autosave"
   FILENAME_PROMPT_REGEX = /Please enter a filename \[.*\]: /
-  PROMPT_REGEX = /^>\s*$/
+  PROMPT_REGEX = /^(?:\[.*\])?>\s*$/
+  MORE_PROMPT_REGEX = /^\*\*\*MORE\*\*\*$/
   SCORE_REGEX = /([0-9]+) ?(?:\(total [points ]*[out ]*of [a mxiuof]*[a posible]*([0-9]+)\))?/i
   GAME_DIR = Pathname.new(__dir__).join("../games")
   FAILURE_PATTERNS = [

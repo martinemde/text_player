@@ -44,8 +44,8 @@ module TextPlayer
 
           # If we found stats on second line, include it in removal
           if (score && second_line.match?(SCORE_PATTERN)) ||
-             (moves && second_line.match?(MOVES_PATTERN)) ||
-             (time && second_line.match?(TIME_PATTERN))
+              (moves && second_line.match?(MOVES_PATTERN)) ||
+              (time && second_line.match?(TIME_PATTERN))
             lines_to_remove = [lines_to_remove, 2].max
           end
         end
@@ -111,6 +111,21 @@ module TextPlayer
       match ? match[1] : nil
     end
 
+    def self.extract_prompt(text)
+      return [{}, text] if text.nil? || text.empty?
+
+      lines = text.split("\n")
+      return [{}, text] if lines.empty?
+
+      last_line = lines.last&.strip
+      if last_line&.match?(TextPlayer::PROMPT_REGEX)
+        remaining = lines[0...-1].join("\n")
+        [{prompt: last_line}, remaining]
+      else
+        [{}, text]
+      end
+    end
+
     def self.valid_location?(location)
       location.length.positive? &&
         !location.start_with?("I don't ") &&
@@ -120,6 +135,18 @@ module TextPlayer
         !location.start_with?("You ") &&
         !location.start_with?("That's not ") &&
         !location.start_with?("I beg your pardon")
+    end
+
+    # Clean up excessive whitespace but preserve paragraph structure
+    def self.cleanup(text)
+      # Remove excess ending whitespace from all lines
+      text = text.lines.map(&:rstrip).join("\n")
+      # Remove more than 2 consecutive newlines (preserve paragraph breaks)
+      text.gsub!(/\n{3,}/, "\n\n")
+      # Clean up any trailing/leading whitespace on lines
+      text.gsub!(/[ \t]+$/, "")
+      # Remove leading and trailing whitespace
+      text.strip
     end
   end
 end

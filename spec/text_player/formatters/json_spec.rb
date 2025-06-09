@@ -34,7 +34,6 @@ RSpec.describe TextPlayer::Formatters::Json do
       expect(parsed["location"]).to eq("Treasure Room")
       expect(parsed["score"]).to eq(150)
       expect(parsed["moves"]).to eq(25)
-      expect(parsed["has_prompt"]).to be true
       expect(parsed["output"]).to include("glittering treasure room")
     end
 
@@ -133,7 +132,6 @@ RSpec.describe TextPlayer::Formatters::Json do
         expect(parsed["moves"]).to be_nil
         expect(parsed["time"]).to be_nil
         expect(parsed["output"]).to eq("Ok.")
-        expect(parsed["has_prompt"]).to be true
       end
     end
   end
@@ -183,7 +181,6 @@ RSpec.describe TextPlayer::Formatters::Json do
         expect([true, false]).to include(obj["success"])
         expect(obj["raw_output"]).to be_a(String)
         expect(obj["output"]).to be_a(String)
-        expect([true, false]).to include(obj["has_prompt"])
         # Optional fields should be nil or correct type
         expect(obj["location"]).to be_a(String).or be_nil
         expect(obj["score"]).to be_a(Integer).or be_nil
