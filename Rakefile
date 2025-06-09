@@ -7,4 +7,5 @@ RSpec::Core::RakeTask.new(:spec)
 
 require "standard/rake"
 
-task default: %i[spec standard]
+task lint: %i[standard]
+task default: %i[spec lint]
