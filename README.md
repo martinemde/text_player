@@ -15,7 +15,7 @@ TextPlayer requires Frotz, a Z-Machine interpreter written by Stefan Jokisch in 
 Use Homebrew to install the `frotz` package:
 
 ```bash
-$ brew instal frotz
+$ brew install frotz
 ```
 
 If you don't have homebrew, download the source code, build and install.
