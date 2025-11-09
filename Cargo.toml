@@ -1,0 +1,31 @@
+[package]
+name = "text_player"
+version = "0.1.0"
+authors = ["Cardiff Emde <cardiff.emde@gmail.com>", "Martin Emde <me@martinemde.com>"]
+edition = "2021"
+rust-version = "1.70"
+description = "Rust library for playing Zork and other text-based adventure games"
+homepage = "https://github.com/martinemde/text_player"
+repository = "https://github.com/martinemde/text_player"
+license = "MIT"
+keywords = ["zork", "frotz", "interactive-fiction", "text-adventure", "z-machine"]
+categories = ["games", "command-line-utilities"]
+
+[[bin]]
+name = "text_player"
+path = "src/main.rs"
+
+[lib]
+name = "text_player"
+path = "src/lib.rs"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive", "cargo"] }
+regex = "1.10"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+lazy_static = "1.4"
+
+[dev-dependencies]
+tempfile = "3.8"

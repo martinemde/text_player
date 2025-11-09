@@ -1,8 +1,8 @@
 # TextPlayer
 
-A Ruby interface for running text-based interactive fiction games using the Frotz Z-Machine interpreter. This gem provides structured access to classic text adventure games with multiple output formatters for different use cases.
+A Rust library and CLI for running text-based interactive fiction games using the Frotz Z-Machine interpreter. This library provides structured access to classic text adventure games with multiple output formatters for different use cases.
 
-Inspired by [@danielricks/textplayer](https://davidgriffith.gitlab.io/frotz/) - the original Python implementation.
+Inspired by [@danielricks/textplayer](https://github.com/danielricks/textplayer) - the original Python implementation.
 
 I have chosen not to distribute the games in the ruby gem. You'll need to clone this repository to use the games directly without the full pathname. This is out of an abundance of caution and respect to the owners. Offering them for download, as is done regularly, may be interpreted differently than distributing them in a package.
 
@@ -31,119 +31,196 @@ The `dfrotz` (dumb frotz) binary must be available in your PATH or you will need
 
 ## Installation
 
-Add to an application:
+### Using Cargo
 
-```bash
-$ bundle add text_player
-$ bundle install
+Add to your `Cargo.toml`:
+
+```toml
+[dependencies]
+text_player = "0.1.0"
 ```
 
-Or install it:
+Or install the CLI:
 
 ```bash
-$ gem install text_player
+$ cargo install text_player
 ```
 
-If you'd like to use the games included in the repository, clone it directly from github.com:
+### From Source
+
+Clone the repository and build:
 
 ```bash
 $ git clone git@github.com:martinemde/text_player.git
+$ cd text_player
+$ cargo build --release
 ```
+
+The binary will be available at `target/release/text_player`.
 
 ## Usage
 
-You can use the command line to check if it's working:
+### Command Line
+
+You can use the command line to play games:
 
 ```bash
-$ text_player help
+# Play a game (interactive mode)
 $ text_player play zork1
+
+# Or use the shorthand
+$ text_player zork1
+
+# Specify a formatter
+$ text_player play zork1 --formatter json
+
+# Specify custom dfrotz path
+$ text_player play zork1 --dfrotz ~/bin/dfrotz
 ```
 
-### Basic Example
+### Library Usage
 
 The point of this library is to allow you to run text based adventure games programmatically.
 
-```ruby
-require 'text_player'
+```rust
+use text_player::{Gamefile, Session};
 
-# Create a new game session
-game = TextPlayer::Session.new('games/zork1.z5')
+fn main() -> text_player::Result<()> {
+    // Create a new game session
+    let gamefile = Gamefile::from_input("games/zork1.z5")?;
+    let mut session = Session::new(gamefile, None)?;
 
-# Or specify a custom dfrotz path
-# This must be dfrotz, the DUMB version of frotz, which installs with frotz.
-game = TextPlayer::Session.new('games/zork1.z5', dfrotz: '~/bin/dfrotz')
+    // Start the game
+    let start_result = session.start()?;
+    println!("{}", start_result.raw_output);
 
-# Start the game
-start_output = game.start
-puts start_output
+    // Execute commands
+    let response = session.call("go north")?;
+    println!("{}", response.raw_output);
 
-# Execute commands
-response = game.call('go north')
-puts response
+    // Get current score
+    let score = session.score()?;
+    if let Some(score_value) = score.get_detail("score") {
+        println!("Score: {}", score_value);
+    }
 
-# Get current score
-if score = game.score
-  current_score, max_score = score.score, score.out_of
-  puts "Score: #{current_score}/#{max_score}"
-end
+    // Save and restore
+    session.save(Some("my_save".to_string()))?;
+    session.restore(Some("my_save".to_string()))?;
 
-# Save and restore
-game.save('my_save')
-game.restore('my_save')
+    // Quit the game
+    session.quit()?;
 
-# Quit the game
-game.quit
+    Ok(())
+}
 ```
 
 ### Save and Restore Operations
 
-```ruby
-# Save to default slot (autosave)
-save_result = game.save
-puts save_result  # Formatted feedback about save operation
+```rust
+use text_player::{Gamefile, Session};
 
-# Save to named slot
-game.save('before_dragon')
+fn main() -> text_player::Result<()> {
+    let gamefile = Gamefile::from_input("zork1.z5")?;
+    let mut session = Session::new(gamefile, None)?;
+    session.start()?;
 
-# Restore from default slot
-game.restore
+    // Save to default slot (autosave)
+    let save_result = session.save(None)?;
+    println!("{}", save_result.message.unwrap_or_default());
 
-# Restore from named slot
-game.restore('before_dragon')
+    // Save to named slot
+    session.save(Some("before_dragon".to_string()))?;
+
+    // Restore from default slot
+    session.restore(None)?;
+
+    // Restore from named slot
+    session.restore(Some("before_dragon".to_string()))?;
+
+    Ok(())
+}
 ```
 
 ### Interactive Shell Example
 
-```ruby
-require 'text_player'
+```rust
+use std::io::{self, BufRead, Write};
+use text_player::{Gamefile, Session, Formatters};
 
-game = TextPlayer::Session.new('zork1.z5')
-formatter = TextPlayer::Formatters::Shell
-game.run do |result|
-  formatter.new(result).write($stdout)
-  command = $stdin.gets
-  break if command.nil?
-  command
-end
+fn main() -> text_player::Result<()> {
+    let gamefile = Gamefile::from_input("zork1.z5")?;
+    let mut session = Session::new(gamefile, None)?;
+
+    let formatter = Formatters::by_name("shell");
+    let stdin = io::stdin();
+    let mut stdin_lock = stdin.lock();
+    let mut stdout = io::stdout();
+
+    session.run(|result| {
+        formatter.write_to(result, &mut stdout).ok()?;
+        stdout.flush().ok()?;
+
+        let mut line = String::new();
+        stdin_lock.read_line(&mut line).ok()?;
+        Some(line.trim().to_string())
+    })?;
+
+    Ok(())
+}
 ```
 
 ### Configuring dfrotz Path
 
-By default, TextPlayer looks for the `dfrotz` executable in the system PATH `dfrotz`. You can specify a custom path:
+By default, TextPlayer looks for the `dfrotz` executable in the system PATH. You can specify a custom path:
 
-```ruby
-# Use local path to compiled dfrotz
-game = TextPlayer::Session.new('zork1.z5', dfrotz: './frotz/dfrotz')
+```rust
+use text_player::{Gamefile, Session};
 
-# Use absolute path
-game = TextPlayer::Session.new('zork1.z5', dfrotz: '/usr/local/bin/dfrotz')
+fn main() -> text_player::Result<()> {
+    let gamefile = Gamefile::from_input("zork1.z5")?;
+
+    // Use local path to compiled dfrotz
+    let mut session = Session::new(gamefile.clone(), Some("./frotz/dfrotz".to_string()))?;
+
+    // Use absolute path
+    let mut session = Session::new(gamefile, Some("/usr/local/bin/dfrotz".to_string()))?;
+
+    Ok(())
+}
+```
+
+You can also set the `DFROTZ_PATH` environment variable:
+
+```bash
+export DFROTZ_PATH=/usr/local/bin/dfrotz
 ```
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+After checking out the repo, build the project:
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+```bash
+$ cargo build
+```
+
+Run tests:
+
+```bash
+$ cargo test
+```
+
+Run the CLI during development:
+
+```bash
+$ cargo run -- play zork1
+```
+
+To release a new version, update the version number in `Cargo.toml` and `src/lib.rs`, then:
+
+```bash
+$ cargo publish
+```
 
 ## Contributing
 
@@ -168,4 +245,4 @@ The games are copyright and licensed by their respective owners.
 
 ## Credits
 
-This Ruby implementation was inspired and influenced by [@danielricks/textplayer](https://github.com/danielricks/textplayer), who wrote a Python interface for Frotz to facilitate training models to automatically play the game.
+This Rust implementation was inspired and influenced by [@danielricks/textplayer](https://github.com/danielricks/textplayer), who wrote a Python interface for Frotz to facilitate training models to automatically play the game. A Ruby version also exists and served as the basis for this Rust port.
