@@ -3,6 +3,8 @@
 module TextPlayer
   # Mid-level: Manages game session lifecycle and output formatting
   class Session
+    # @param gamefile [Gamefile] The game file to play
+    # @param dfrotz [Dfrotz] The dfrotz instance to use
     def initialize(gamefile, dfrotz: nil)
       @gamefile = gamefile
       @game = Dfrotz.new(gamefile.full_path, dfrotz:)
