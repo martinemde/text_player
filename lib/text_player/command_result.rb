@@ -3,9 +3,14 @@
 module TextPlayer
   # Encapsulates the result of executing a command
   CommandResult = Data.define(:input, :raw_output, :operation, :success, :message, :details) do
-    # Common failure patterns in text adventure games
-
-    def initialize(input:, raw_output: "", operation: :action, success: true, message: nil, **details)
+    def initialize(
+      input:,
+      raw_output: "",
+      operation: :action,
+      success: true,
+      message: nil,
+      **details
+    )
       super(input:, raw_output:, operation:, success:, message:, details:)
     end
 

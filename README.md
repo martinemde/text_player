@@ -15,16 +15,16 @@ TextPlayer requires Frotz, a Z-Machine interpreter written by Stefan Jokisch in 
 Use Homebrew to install the `frotz` package:
 
 ```bash
-$ brew install frotz
+brew install frotz
 ```
 
 If you don't have homebrew, download the source code, build and install.
 
 ```bash
-$ git clone https://github.com/DavidGriffith/frotz.git
-$ cd frotz
-$ make dumb
-$ make dumb_install # optional, but recommended
+git clone https://github.com/DavidGriffith/frotz.git
+cd frotz
+make dumb
+make dumb_install # optional, but recommended
 ```
 
 The `dfrotz` (dumb frotz) binary must be available in your PATH or you will need to pass the path to the dfrotz executable as an argument to TextPlayer.
@@ -34,20 +34,20 @@ The `dfrotz` (dumb frotz) binary must be available in your PATH or you will need
 Add to an application:
 
 ```bash
-$ bundle add text_player
-$ bundle install
+bundle add text_player
+bundle install
 ```
 
 Or install it:
 
 ```bash
-$ gem install text_player
+gem install text_player
 ```
 
 If you'd like to use the games included in the repository, clone it directly from github.com:
 
 ```bash
-$ git clone git@github.com:martinemde/text_player.git
+git clone git@github.com:martinemde/text_player.git
 ```
 
 ## Usage
@@ -55,8 +55,8 @@ $ git clone git@github.com:martinemde/text_player.git
 You can use the command line to check if it's working:
 
 ```bash
-$ text_player help
-$ text_player play zork1
+text_player help
+text_player play zork1
 ```
 
 ### Basic Example
@@ -68,7 +68,6 @@ require 'text_player'
 
 # Create a new game session
 game = TextPlayer::Session.new('games/zork1.z5')
-
 # Or specify a custom dfrotz path
 # This must be dfrotz, the DUMB version of frotz, which installs with frotz.
 game = TextPlayer::Session.new('games/zork1.z5', dfrotz: '~/bin/dfrotz')
@@ -118,7 +117,7 @@ game.restore('before_dragon')
 require 'text_player'
 
 game = TextPlayer::Session.new('zork1.z5')
-formatter = TextPlayer::Formatters::Shell
+formatter = TextPlayer::Formatter::Shell
 game.run do |result|
   formatter.new(result).write($stdout)
   command = $stdin.gets
@@ -147,7 +146,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/martinemde/text_player.
+Bug reports and pull requests are welcome on GitHub at <https://github.com/martinemde/text_player>.
 
 ## Game Files
 

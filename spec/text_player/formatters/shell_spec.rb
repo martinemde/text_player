@@ -2,39 +2,44 @@
 
 require "spec_helper"
 
-RSpec.describe TextPlayer::Formatters::Shell do
+RSpec.describe TextPlayer::Formatter::Shell do
   let(:game_output) do
     " Library                                             Score: 30       Moves: 15\n\nLibrary\nYou are in a dusty library filled with ancient books.\nSunlight streams through tall windows.\n\n>"
   end
 
-  def game_output_formatter(raw_output, input: "look", success: true)
-    command_result = TextPlayer::CommandResult.new(
+  def game_command_result(raw_output, input: "look", success: true)
+    TextPlayer::CommandResult.new(
       operation: :action,
       success:,
       input:,
       raw_output:
     )
-    described_class.new(command_result)
   end
 
-  def system_output_formatter(input: "command", **kwargs)
-    command_result = TextPlayer::CommandResult.new(
+  def system_command_result(input: "command", **kwargs)
+    TextPlayer::CommandResult.new(
       operation: :system,
       success: true,
       input:,
       **kwargs
     )
-    described_class.new(command_result)
   end
 
-  describe "#to_s" do
+  describe "#format" do
     context "with game commands" do
-      it "returns raw output" do
-        expect(game_output_formatter(game_output).to_s).to eq(game_output)
+      it "returns formatted output with colored prompt" do
+        result = game_command_result(game_output)
+        output = described_class.format(result)
+        expect(output).to include("Library")
+        expect(output).to include("dusty library")
+        expect(output).to include("\e[32m>\e[0m") # Green prompt for success
       end
 
-      it "returns raw output of failed commands" do
-        expect(game_output_formatter("You can't go that way.\n\n>").to_s).to eq("You can't go that way.\n\n>")
+      it "returns formatted output with colored prompt for failed commands" do
+        result = game_command_result("You can't go that way.\n\n>")
+        output = described_class.format(result)
+        expect(output).to include("You can't go that way.")
+        expect(output).to include("\e[32m>\e[0m") # Green prompt (success is still true)
       end
 
       it "returns message if present instead of raw output" do
@@ -45,21 +50,21 @@ RSpec.describe TextPlayer::Formatters::Shell do
           raw_output: "original output",
           message: "custom message"
         )
-        formatter = described_class.new(command_result)
-        expect(formatter.to_s).to eq("custom message")
+        expect(described_class.format(command_result)).to eq("custom message")
       end
     end
 
     context "with system commands" do
       context "successful save" do
         it "formats system feedback with success indicator" do
-          result = system_output_formatter(
+          command_result = system_command_result(
             input: "save test.sav",
             operation: :save,
             success: true,
             message: "Game saved successfully",
             filename: "test.sav"
-          ).to_s
+          )
+          result = described_class.format(command_result)
 
           expect(result).to include("✓")
           expect(result).to include("SAVE")
@@ -72,13 +77,14 @@ RSpec.describe TextPlayer::Formatters::Shell do
 
       context "failed restore" do
         it "formats system feedback with failure indicator" do
-          result = system_output_formatter(
+          command_result = system_command_result(
             input: "restore missing.sav",
             operation: :restore,
             success: false,
             message: "File not found",
             filename: "missing.sav"
-          ).to_s
+          )
+          result = described_class.format(command_result)
           expect(result).to include("✗")
           expect(result).to include("RESTORE")
           expect(result).to include("File not found")
@@ -89,12 +95,13 @@ RSpec.describe TextPlayer::Formatters::Shell do
 
       context "quit command" do
         it "formats system feedback with success indicator" do
-          result = system_output_formatter(
+          command_result = system_command_result(
             input: "quit",
             operation: :quit,
             success: true,
             message: "Goodbye!"
-          ).to_s
+          )
+          result = described_class.format(command_result)
           expect(result).to include("✓")
           expect(result).to include("QUIT")
           expect(result).to include("Goodbye!")
@@ -104,90 +111,14 @@ RSpec.describe TextPlayer::Formatters::Shell do
 
     context "with score command" do
       it "returns the raw output" do
-        result = system_output_formatter(
+        command_result = system_command_result(
           input: "score",
           operation: :score,
           success: true,
           raw_output: "Your score is 150 out of 300"
-        ).to_s
+        )
+        result = described_class.format(command_result)
         expect(result).to eq("Your score is 150 out of 300")
-      end
-    end
-  end
-
-  describe "#to_h" do
-    it "includes base formatter data plus shell-specific fields" do
-      hash = game_output_formatter(game_output).to_h
-
-      expect(hash[:input]).to eq("look")
-      expect(hash[:operation]).to eq(:action)
-      expect(hash[:success]).to be true
-      expect(hash[:raw_output]).to eq(game_output)
-      expect(hash[:formatted_output]).to eq(game_output)
-    end
-
-    context "with failed command" do
-      it "includes formatted output without color in to_h" do
-        hash = game_output_formatter("I don't understand that.\n>").to_h
-        expect(hash[:formatted_output]).to eq("I don't understand that.\n>")
-      end
-    end
-
-    context "with system command" do
-      it "includes base formatter data plus shell-specific fields" do
-        hash = system_output_formatter(
-          input: "save",
-          operation: :save,
-          success: true,
-          message: "Saved",
-          raw_output: "Saved"
-        ).to_h
-
-        expect(hash[:input]).to eq("save")
-        expect(hash[:operation]).to eq(:save)
-        expect(hash[:success]).to be true
-        expect(hash[:raw_output]).to eq("Saved")
-      end
-    end
-  end
-
-  describe "#write" do
-    context "with failed game command" do
-      it "writes content and colored prompt separately" do
-        stream = StringIO.new
-        game_output_formatter("You can't do that.\n\n>", success: false).write(stream)
-
-        output = stream.string
-        expect(output).to include("You can't do that.\n\n")
-        expect(output).to include("\e[31m> \e[0m") # Red prompt for failure
-      end
-    end
-
-    context "with successful game command" do
-      it "writes content and green prompt" do
-        stream = StringIO.new
-        game_output_formatter("You look around.\n>", input: "look", success: true).write(stream)
-
-        output = stream.string
-        expect(output).to include("You look around.\n")
-        expect(output).to include("\e[32m> \e[0m") # Green prompt for success
-      end
-    end
-
-    context "with system command" do
-      it "writes formatted system feedback" do
-        stream = StringIO.new
-        system_output_formatter(
-          input: "save test",
-          operation: :save,
-          success: true,
-          message: "Game saved"
-        ).write(stream)
-
-        output = stream.string
-        expect(output).to include("✓")
-        expect(output).to include("SAVE")
-        expect(output).to include("Game saved")
       end
     end
   end

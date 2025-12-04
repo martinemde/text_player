@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe TextPlayer::Formatters::Json do
+RSpec.describe TextPlayer::Formatter::Json do
   let(:game_output) do
     " Treasure Room                                       Score: 150      Moves: 25\n\nTreasure Room\nYou are in a glittering treasure room filled with gold and jewels.\nA massive chest sits in the center of the room.\n\n>"
   end
@@ -16,16 +16,14 @@ RSpec.describe TextPlayer::Formatters::Json do
     )
   end
 
-  let(:formatter) { described_class.new(command_result) }
-
-  describe "#to_s" do
+  describe "#format" do
     it "returns valid JSON string" do
-      json_string = formatter.to_s
+      json_string = described_class.format(command_result)
       expect { JSON.parse(json_string) }.not_to raise_error
     end
 
-    it "includes all data formatter fields in JSON" do
-      json_string = formatter.to_s
+    it "includes all fields in JSON" do
+      json_string = described_class.format(command_result)
       parsed = JSON.parse(json_string)
 
       expect(parsed["input"]).to eq("look")
@@ -52,7 +50,7 @@ RSpec.describe TextPlayer::Formatters::Json do
       end
 
       it "includes time field in JSON when present" do
-        json_string = formatter.to_s
+        json_string = described_class.format(command_result)
         parsed = JSON.parse(json_string)
 
         expect(parsed["time"]).to eq("3:15 PM")
@@ -72,10 +70,8 @@ RSpec.describe TextPlayer::Formatters::Json do
         )
       end
 
-      let(:formatter) { described_class.new(failed_result) }
-
       it "includes failure information in JSON" do
-        json_string = formatter.to_s
+        json_string = described_class.format(failed_result)
         parsed = JSON.parse(json_string)
 
         expect(parsed["success"]).to be false
@@ -97,10 +93,8 @@ RSpec.describe TextPlayer::Formatters::Json do
         )
       end
 
-      let(:formatter) { described_class.new(system_result) }
-
       it "includes system command data in JSON" do
-        json_string = formatter.to_s
+        json_string = described_class.format(system_result)
         parsed = JSON.parse(json_string)
 
         expect(parsed["input"]).to eq("save test.sav")
@@ -123,7 +117,7 @@ RSpec.describe TextPlayer::Formatters::Json do
       end
 
       it "handles minimal output gracefully" do
-        json_string = formatter.to_s
+        json_string = described_class.format(command_result)
         parsed = JSON.parse(json_string)
 
         expect(parsed["input"]).to eq("take key")
@@ -133,25 +127,6 @@ RSpec.describe TextPlayer::Formatters::Json do
         expect(parsed["time"]).to be_nil
         expect(parsed["output"]).to eq("Ok.")
       end
-    end
-  end
-
-  describe "#to_h" do
-    it "returns same data as Data#to_h" do
-      data_formatter = TextPlayer::Formatters::Data.new(command_result)
-
-      expect(formatter.to_h).to eq(data_formatter.to_h)
-    end
-  end
-
-  describe "#write" do
-    it "writes JSON string to stream" do
-      stream = StringIO.new
-      formatter.write(stream)
-
-      expect { JSON.parse(stream.string) }.not_to raise_error
-      parsed = JSON.parse(stream.string)
-      expect(parsed["location"]).to eq("Treasure Room")
     end
   end
 
@@ -170,8 +145,7 @@ RSpec.describe TextPlayer::Formatters::Json do
           input: "test",
           raw_output: output
         )
-        formatter = described_class.new(result)
-        JSON.parse(formatter.to_s)
+        JSON.parse(described_class.format(result))
       end
 
       # Check that all objects have same field types

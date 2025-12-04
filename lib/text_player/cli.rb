@@ -8,16 +8,16 @@ module TextPlayer
     default_command :play
 
     desc "play GAME", "Play a text adventure game"
-    option :formatter, type: :string, default: "shell", desc: "Specify the formatter to use (text, data, json, shell)"
+    option :formatter, type: :string, default: "shell", desc: "Specify the formatter to use (text, json, shell)"
     def play(game)
       gamefile = TextPlayer::Gamefile.from_input(game)
       session = TextPlayer::Session.new(gamefile)
 
       formatter_type = options[:formatter].downcase.to_sym
-      formatter = TextPlayer::Formatters.by_name(formatter_type)
+      formatter = TextPlayer::Formatter.by_name(formatter_type)
 
       session.run do |result|
-        formatter.write(result, $stdout)
+        $stdout.write formatter.format(result)
         $stdin.gets
       end
     end
