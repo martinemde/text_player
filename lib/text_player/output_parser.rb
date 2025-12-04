@@ -32,7 +32,7 @@ module TextPlayer
         time: time,
         prompt: prompt,
         output: output,
-        has_prompt: !prompt.nil?,
+        has_prompt: !prompt.nil?
       }
     end
 
