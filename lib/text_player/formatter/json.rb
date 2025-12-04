@@ -15,7 +15,7 @@ module TextPlayer
           input: command_result.input,
           operation: command_result.operation.to_s,
           success: command_result.success?,
-          raw_output: command_result.raw_output,
+          raw_output: command_result.raw_output
         }.merge(parsed)
 
         # Add optional command_result fields if present
@@ -27,4 +27,3 @@ module TextPlayer
     end
   end
 end
-
